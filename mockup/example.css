@@ -93,6 +93,7 @@ body {
         position: absolute;
         background-color: white;
         min-width: 160px;
+	z-index:2;
     }
 
     .dropdown-content a {
