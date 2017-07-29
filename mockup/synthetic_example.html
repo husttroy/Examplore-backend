@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Synthetic Code Examples</title>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css">
+
+    <link rel="stylesheet" href="example.css">
+  </head>
+
+  <body>
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#home">Rendering Data Variations</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="#software">Software Patterns</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container-fluid">
+      <h1 id="software">Software Patterns for <code>Activity.findViewById</code></h1>
+
+      <h3>Patterns</h3>
+      <div class="row">
+        <div class="col-sm-1">324</div>
+        <div class="col-sm-1"></div>
+        <div class="col-sm-1"></div>
+        <div class="col-sm-1"><code>findViewById(1)</code></div>
+        <div class="col-sm-1"><code>if</code></div>
+        <div class="col-sm-1"><code>end</code></div>
+      </div>
+      <div class="row">
+        <div class="col-sm-1">147</div>
+        <div class="col-sm-1"><code>getActivity(0)</code></div>
+        <div class="col-sm-1"></div>
+        <div class="col-sm-1"><code>findViewById(1)</code></div>
+      </div>
+      <div class="row">
+        <div class="col-sm-1">84</div>
+        <div class="col-sm-1"><code>getResources(0)</code></div>
+        <div class="col-sm-1"></div>
+        <div class="col-sm-1"><code>findViewById(1)</code></div>
+      </div>
+      <div class="row">
+        <div class="col-sm-1">88</div>
+        <div class="col-sm-1"><code>getWindow(0)</code></div>
+        <div class="col-sm-1"></div>
+        <div class="col-sm-1"><code>findViewById(1)</code></div>
+      </div>
+      <div class="row">
+        <div class="col-sm-1">87</div>
+        <div class="col-sm-1"><code>getWindow(0)</code></div>
+        <div class="col-sm-1"><code>getDecorView(0)</code></div>
+        <div class="col-sm-1"><code>findViewById(1)</code></div>
+      </div>
+      <div class="row">
+        <div class="col-sm-1">87</div>
+        <div class="col-sm-1"></div>
+        <div class="col-sm-1"><code>getDecorView(0)</code></div>
+        <div class="col-sm-1"><code>findViewById(1)</code></div>
+      </div>
+      <div class="row">
+        <div class="col-sm-1">114</div>
+        <div class="col-sm-1"></div>
+        <div class="col-sm-1"></div>
+        <div class="col-sm-1"><code>findViewById(1)</code></div>
+        <div class="col-sm-2"><code>setOnClickListener(1)</code></div>
+      </div>
+      <div class="row">
+        <div class="col-sm-1">107</div>
+        <div class="col-sm-1"></div>
+        <div class="col-sm-1"></div>
+        <div class="col-sm-1"><code>findViewById(1)</code></div>
+        <div class="col-sm-2"><code>setText(1)</code></div>
+      </div>
+      <div class="row">
+        <div class="col-sm-1">93</div>
+        <div class="col-sm-1"></div>
+        <div class="col-sm-1"></div>
+        <div class="col-sm-1"><code>findViewById(1)</code></div>
+        <div class="col-sm-2"><code>setVisibility(1)</code></div>
+      </div>
+      <div class="row">
+        <div class="col-sm-1">87</div>
+        <div class="col-sm-1"></div>
+        <div class="col-sm-1"></div>
+        <div class="col-sm-1"><code>findViewById(1)</code></div>
+        <div class="col-sm-2"><code>getResources(0)</code></div>
+      </div>
+      <div class="row">
+        <div class="col-sm-1">83</div>
+        <div class="col-sm-1"></div>
+        <div class="col-sm-1"></div>
+        <div class="col-sm-1"><code>findViewById(1)</code></div>
+        <div class="col-sm-2"><code>getString(1)</code></div>
+      </div>
+      
+      <hr>
+      <hr>
+      
+     <h2>Pattern 1</h2>
+      <div class="row">
+        <div class="col-sm-1">324</div>
+        <div class="col-sm-1"></div>
+        <div class="col-sm-1"></div>
+        <div class="col-sm-1"><code>findViewById(1)</code></div>
+        <div class="col-sm-1"><code>if</code></div>
+        <div class="col-sm-1"><code>end</code></div>
+      </div>
+
+      <hr>
+
+      <div class="row">
+        <div class="col-sm-6">
+          <pre class="loc"><code>Activity activity = ...;<span id="id-decl" style="display: none">
+int id = null;</span><span id="up-decl" style="display: none">
+Intent up = ...;</span>
+View <span class="interest-item-3">view</span> = <span class="interest-item-1">activity.findViewById</span>(<div id='my-arg' class="dropdown"><button class="dropbtn"><span id="my-arg-selected">select an argument</span> <span class="caret"></span></button><div class="dropdown-content"><a id="android.R.id.home" href="#">android.R.id.home : 7</a><a id="id" href="#">id : 4</a><a id="R.id.info_button" href="#">R.id.info_button : 3</a><a id="R.id.actionbar_title" href="#">R.id.actionbar_title : 3</a><a id="R.id.title_text" href="#">R.id.title_text : 1</a><a id="coinched_radiobuttons_ids[i]" href="#">coinched_radiobuttons_ids[i] : 1</a><a id="android.R.id.content" href="#">android.R.id.content : 1</a><a id="R.id.adView">R.id.adView : 1</a></div></div>);
+<span class="interest-item-2">if(<div id='my-check' class="dropdown"><button class="dropbtn"><span id="my-check-selected">select a condition</span> <span class="caret"></span></button><div class="dropdown-content"><a id="view != null" href="#"><span class="interest-item-3">view</span> != null : 8</a><a id="view == null" href="#"><span class="interest-item-3">view</span> == null : 7</a><a id="!hasSeenInfoDialog(activity)" href="#">!hasSeenInfoDialog(activity) : 3</a><a id="up != null" href="#">up != null : 1</a></div></div>)</span> {
+  <span class="ellips" style="display:inline">...</span><span class="android-R-id-home" style="display:none"><span class="interest-item-3">view</span> = <span class="interest-item-1">activity.findViewById</span>(R.id.abs_home);</span>
+}
+
+
+</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script class="cssdeck" src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
+
+    <script>
+        $(function() {
+	    $('#my-arg').find('a').click(function() {
+                var text = this.id;
+
+		// update the selected item in my-arg
+                $('#my-arg-selected').html(text);
+	        
+		// update the declaration statements
+		if(text == "id") {
+		    // if the user selects id
+		    // show the definition of id
+		    $("#id-decl")[0].style.display = 'inline';
+		    // hide the definition of up 
+		    $("#up-decl")[0].style.display = 'none';
+	    	} else if (text == "R.id.title_text") {
+		    $("#id-decl")[0].style.display = 'none';
+		    $("#up-decl")[0].style.display = 'inline';
+		} else {
+		    $("#id-decl")[0].style.display = 'none';
+		    $("#up-decl")[0].style.display = 'none';
+		}
+		
+		// customize the content in the if condition
+		if(text == "android.R.id.home") {
+		    $('#my-check-selected').html("<span class=\"interest-item-3\">view</span> == null");
+		    // gray out the rest
+                    $("#my-check").find('a').each(function(i) {
+			if (this.id != "view == null") {
+	         	    this.style.color = "silver";
+		     	}
+		    });
+	 	} else {
+		    // TODO: handle other choices		
+		}
+
+		// customize the content in the if block
+		if(text == "android.R.id.home") {
+		    $(".android-R-id-home")[0].style.display = "inline";
+		    $(".ellips")[0].style.display = "none";
+	 	} else {
+		    $(".android-R-id-home")[0].style.display = "none";
+		    $(".ellips")[0].style.display = "inline";			
+		}
+            });
+
+   	    $('#my-check').find('a').click(function() {		
+		var text = this.id;
+
+		// update the selected item in my-check
+		if (text == 'view != null') {
+		    $('#my-check-selected').html("<span class=\"interest-item-3\">view</span> != null");
+		} else {
+		    $('#my-check-selected').html(this.id);
+		}
+
+		// if the user selects up != null
+		if(text == 'up != null') {
+		    $("#up-decl")[0].style.display = 'inline';
+		    $("#id-dec;")[0].style.display = 'none';
+	    	} else {
+		    $("#up-decl")[0].style.display = 'none';
+		}
+            });
+        });
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js" integrity="sha256-/BfiIkHlHoVihZdc6TFuj7MmJ0TWcWsMXkeDFwhi0zw=" crossorigin="anonymous"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+  </body>
+</html>

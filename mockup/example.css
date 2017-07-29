@@ -1,0 +1,121 @@
+body {
+      padding-top: 50px;
+    }
+    .starter-template {
+      padding: 40px 15px;
+      text-align: center;
+    }
+
+    div.frame {
+        position: relative;
+        height: 1000px;
+        border: 1px solid gray;
+    } 
+
+    div.absolute {
+        position: absolute;
+    }
+    div.relative {
+        position: relative;
+        /*border: 1px solid black;*/
+    }
+
+    .phrase {
+      background-color: AliceBlue;
+      display: inline-block;
+    }
+    .word {
+      background-color: Azure;
+    }
+    .gray-text {
+      color: gray;
+    }
+
+    .floating-box {
+        display: inline-block;
+        /*border: 3px solid #73AD21;  */
+    }
+    .white-text {
+        color: white;
+    }
+    .after-box {
+        border: 3px solid red; 
+    }
+    .interest-item {
+        font-style: italic;
+        font-weight: bold;
+    }
+    .interest-item-1 {
+        background-color: lightblue;
+    }
+    .interest-item-2 {
+        background-color: lightgreen;
+    }
+    .interest-item-3 {
+        background-color: pink;
+    }
+    .interest-item-4 {
+        background-color: lightyellow;
+    }
+    .interest-item-5 {
+        background-color: orange;
+    }
+    .interest-item-6 {
+        background-color: lime;
+    }
+    .interest-item-7 {
+        background-color: aqua;
+    }
+    .interest-item-8 {
+        background-color: lightgray;
+    }
+    .loc {
+        padding: 2px;
+    }
+
+    /* for dropdown menu */
+    .dropbtn {
+        background-color:inherit;
+        padding: 1px;
+        font-size: 13px;
+        border-style: groove;
+        border-width: 1px;
+        cursor: pointer;
+    }
+   
+    .dropdown {
+        position: relative;
+        display: inline-block;
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: white;
+        min-width: 160px;
+    }
+
+    .dropdown-content a {
+	position: relative;
+        color: black;
+        padding: 1px;
+        text-decoration: none;
+        display: block; 
+        white-space: nowrap;
+    }
+
+    /* show the dropdown out of the pre block, but is a little ugly
+    .dropdown:hover {
+  	position: absolute;
+    } */
+
+    .dropdown:hover .dropdown-content {
+        display: block;	
+	background-color: white;
+	opacity:1;
+    }
+
+    .dropdown:hover .dropbtn {
+        display: block;
+	background-color: white;
+    }
