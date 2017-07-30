@@ -127,17 +127,26 @@
       <hr>
 
       <div class="row">
-        <div class="col-sm-6">
-          <pre class="loc"><code>Activity activity = ...;<span id="id-decl" style="display: none">
+        <div class="col-sm-4">
+	  <span>Synthesized Code Example</span>
+          <pre class="loc"><code class="fix-height">Activity activity = ...;<span id="id-decl" style="display: none">
 int id = null;</span><span id="up-decl" style="display: none">
-Intent up = ...;</span>
-View <span class="interest-item-3">view</span> = <span class="interest-item-1">activity.findViewById</span>(<div id='my-arg' class="dropdown"><button class="dropbtn"><span id="my-arg-selected">select an argument</span> <span class="caret"></span></button><div class="dropdown-content"><a id="android.R.id.home" href="#">android.R.id.home : 7</a><a id="id" href="#">id : 4</a><a id="R.id.info_button" href="#">R.id.info_button : 3</a><a id="R.id.actionbar_title" href="#">R.id.actionbar_title : 3</a><a id="R.id.title_text" href="#">R.id.title_text : 1</a><a id="coinched_radiobuttons_ids[i]" href="#">coinched_radiobuttons_ids[i] : 1</a><a id="android.R.id.content" href="#">android.R.id.content : 1</a><a id="R.id.adView">R.id.adView : 1</a></div></div>);
-<span class="interest-item-2">if(<div id='my-check' class="dropdown"><button class="dropbtn"><span id="my-check-selected">select a condition</span> <span class="caret"></span></button><div class="dropdown-content"><a id="view != null" href="#"><span class="interest-item-3">view</span> != null : 8</a><a id="view == null" href="#"><span class="interest-item-3">view</span> == null : 7</a><a id="!hasSeenInfoDialog(activity)" href="#">!hasSeenInfoDialog(activity) : 3</a><a id="up != null" href="#">up != null : 1</a></div></div>)</span> {
-  <span class="ellips" style="display:inline">...</span><span class="android-R-id-home" style="display:none"><span class="interest-item-3">view</span> = <span class="interest-item-1">activity.findViewById</span>(R.id.abs_home);</span>
+Intent up = ...;</span><span id="yboTvProFound-decl" style="display: none"> 
+boolean yboTvProFound = false;
+...</span>
+View <span class="interest-item-3">view</span> = <span class="interest-item-1">activity.findViewById</span>(<div id='my-arg' class="dropdown"><button class="dropbtn"><span id="my-arg-selected">select an argument</span> <span class="caret"></span></button><div class="dropdown-content"><a id="android.R.id.home" href="#">android.R.id.home : 7</a><a id="id" href="#">id : 4</a><a id="R.id.info_button" href="#">R.id.info_button : 3</a><a id="R.id.actionbar_title" href="#">R.id.actionbar_title : 3</a><a id="R.id.title_text" href="#">R.id.title_text : 1</a><a id="android.R.id.content" href="#">android.R.id.content : 1</a><a id="R.id.adView" href="#">R.id.adView : 1</a></div></div>);
+<span class="interest-item-2">if(<div id='my-check' class="dropdown"><button class="dropbtn"><span id="my-check-selected">select a condition</span> <span class="caret"></span></button><div class="dropdown-content"><a id="view != null" href="#"><span class="interest-item-3">view</span> != null : 8</a><a id="view == null" href="#"><span class="interest-item-3">view</span> == null : 7</a><a id="!hasSeenInfoDialog(activity)" href="#">!hasSeenInfoDialog(activity) : 3</a><a id="up != null" href="#">up != null : 1</a><a id="yboTvProFound" href="#">yboTvProFound : 1</a></div></div>)</span> {
+  <span class="ellips" style="display:inline">...</span><span class="android-R-id-home" style="display:none"><span class="interest-item-3">view</span> = <span class="interest-item-1">activity.findViewById</span>(R.id.abs_home);</span><span class="id" style="display:none"><div id="my-call" class="dropdown"><button class="dropbtn"><span id="my-call-selected">select a method call</span> <span class="caret"></button><div class="dropdown-content"><a id="view.setText(...)" href="#"><span class="interest-item-3">view</span>.<span class="interest-item-7">setText</span>(...); : 2</a><a id="clickOnView(activity, view)" href="#">clickOnView(activity, <span class="interest-item-3">view</span>); : 2</a></div></div></span><span class="R-id-info_button" style="display:none">showInfoDialog(activity, ...);</span><span class="R-id-actionbar_title" style="display:none"><span class="interest-item-3">view</span>.<span class="interest-item-7">setText</span>(...);</span><span class="R-id-title_text" style="display:none">setTitleButton(activity, up);</span><span class="android-R-id-content" style="display:none"><span class="interest-item-3">view</span>.<span class="interest-item-7">removeView</span>(...);</span><span class="R-id-adView" style="display:none">View view2 = <span class="interest-item-1">activity.findViewById</span>(R.id.ad_container);
+  ...</span>
 }
 
 
 </code></pre>
+        </div>
+
+        <div class="col-sm-4">
+          <span>Real Code Example</span><div style="float:right"><span id="frequency" class="badge">2</span></div>
+	  <pre class="loc"><code class="fix-height"> real example placeholder </code></pre>
         </div>
       </div>
     </div>
@@ -151,7 +160,9 @@ View <span class="interest-item-3">view</span> = <span class="interest-item-1">a
                 var text = this.id;
 
 		// update the selected item in my-arg
-                $('#my-arg-selected').html(text);
+                $('#my-arg-selected').html(this.id);
+
+		//TODO: repaint the menu items when a user selects a greyed-out item
 	        
 		// update the declaration statements
 		if(text == "id") {
@@ -160,34 +171,176 @@ View <span class="interest-item-3">view</span> = <span class="interest-item-1">a
 		    $("#id-decl")[0].style.display = 'inline';
 		    // hide the definition of up 
 		    $("#up-decl")[0].style.display = 'none';
+		    // hide the definition of yboTvProFound
+		    $("#yboTvProFound-decl")[0].style.display = 'none';
 	    	} else if (text == "R.id.title_text") {
 		    $("#id-decl")[0].style.display = 'none';
 		    $("#up-decl")[0].style.display = 'inline';
+	            $("#yboTvProFound-decl")[0].style.display = 'none';
+		} else if (text == "R.id.adView") {
+		    $("#id-decl")[0].style.display = 'none';
+		    $("#up-decl")[0].style.display = 'none';
+	            $("#yboTvProFound-decl")[0].style.display = 'inline';
 		} else {
 		    $("#id-decl")[0].style.display = 'none';
 		    $("#up-decl")[0].style.display = 'none';
+	 	    $("#yboTvProFound-decl")[0].style.display = 'none';
 		}
 		
 		// customize the content in the if condition
 		if(text == "android.R.id.home") {
 		    $('#my-check-selected').html("<span class=\"interest-item-3\">view</span> == null");
-		    // gray out the rest
+
                     $("#my-check").find('a').each(function(i) {
-			if (this.id != "view == null") {
-	         	    this.style.color = "silver";
-		     	}
+			if (this.id == "view == null") {
+	         	    // reset this option's color to black
+			    this.style.color = "black";
+		     	} else {
+			    // gray out the rest
+			    this.style.color = "silver";
+			}
 		    });
-	 	} else {
-		    // TODO: handle other choices		
+	 	} else if (text == "id") {
+		    $('#my-check-selected').html("<span class=\"interest-item-3\">view</span> != null");
+                    $("#my-check").find('a').each(function(i) {
+			if (this.id == "view != null") {
+			    // reset this option's color to black
+			    this.style.color = "black";
+		     	} else {
+			    // gray out the rest
+			    this.style.color = "silver";
+			}
+		    });
+		} else if (text == "R.id.info_button") {
+		    $('#my-check-selected').html("!hasSeenInfoDialog(activity)");
+		    $("#my-check").find('a').each(function(i) {
+			if (this.id == "!hasSeenInfoDialog(activity)") {
+			    // reset this option's color to black
+			    this.style.color = "black";
+		     	} else {
+			    // gray out the rest
+			    this.style.color = "silver";
+			}
+		    });
+		} else if (text == "R.id.actionbar_title") {
+		    $('#my-check-selected').html("<span class=\"interest-item-3\">view</span> != null");
+		    $("#my-check").find('a').each(function(i) {
+			if (this.id == "view != null") {
+			    // reset this option's color to black
+			    this.style.color = "black";
+		     	} else {
+			    // gray out the rest
+			    this.style.color = "silver";
+			}
+		    });
+		} else if (text == "R.id.title_text") {
+		    $('#my-check-selected').html("up != null");
+		    $("#my-check").find('a').each(function(i) {
+			if (this.id == "up != null") {
+			    // reset this option's color to black
+			    this.style.color = "black";
+		     	} else {
+			    // gray out the rest
+			    this.style.color = "silver";
+			}
+		    });
+		} else if (text == "android.R.id.content") {
+		    $('#my-check-selected').html("<span class=\"interest-item-3\">view</span> != null");
+		    $("#my-check").find('a').each(function(i) {
+			if (this.id == "view != null") {
+			    // reset this option's color to black
+			    this.style.color = "black";
+		     	} else {
+			    // gray out the rest
+			    this.style.color = "silver";
+			}
+		    });
+		} else if (text == "R.id.adView") {
+		    $('#my-check-selected').html("yboTvProFound");
+		    $("#my-check").find('a').each(function(i) {
+			if (this.id == "yboTvProFound") {
+			    // reset this option's color to black
+			    this.style.color = "black";
+		     	} else {
+			    // gray out the rest
+			    this.style.color = "silver";
+			}
+		    });
 		}
 
 		// customize the content in the if block
 		if(text == "android.R.id.home") {
 		    $(".android-R-id-home")[0].style.display = "inline";
 		    $(".ellips")[0].style.display = "none";
-	 	} else {
+		    $(".id")[0].style.display = "none";
+		    $(".R-id-info_button")[0].style.display = "none";
+		    $(".R-id-actionbar_title")[0].style.display = "none";
+		    $(".R-id-title_text")[0].style.display = "none";
+		    $(".android-R-id-content")[0].style.display = "none";
+		    $(".R-id-adView")[0].style.display = "none";
+	 	} else if (text == "id") {
+		    $(".id")[0].style.display = "inline";
 		    $(".android-R-id-home")[0].style.display = "none";
-		    $(".ellips")[0].style.display = "inline";			
+		    $(".ellips")[0].style.display = "none";
+		    $(".R-id-info_button")[0].style.display = "none";
+		    $(".R-id-actionbar_title")[0].style.display = "none";
+		    $(".R-id-title_text")[0].style.display = "none";
+		    $(".android-R-id-content")[0].style.display = "none";
+		    $(".R-id-adView")[0].style.display = "none";
+		} else if (text == "R.id.info_button") {
+		    $(".id")[0].style.display = "none";
+		    $(".android-R-id-home")[0].style.display = "none";
+		    $(".ellips")[0].style.display = "none";
+		    $(".R-id-info_button")[0].style.display = "inline";
+		    $(".R-id-actionbar_title")[0].style.display = "none";
+		    $(".R-id-title_text")[0].style.display = "none";
+		    $(".android-R-id-content")[0].style.display = "none";
+		    $(".R-id-adView")[0].style.display = "none";
+		} else if (text == "R.id.actionbar_title") {
+		    $(".id")[0].style.display = "none";
+		    $(".android-R-id-home")[0].style.display = "none";
+		    $(".ellips")[0].style.display = "none";
+		    $(".R-id-info_button")[0].style.display = "none";
+		    $(".R-id-actionbar_title")[0].style.display = "inline";
+		    $(".R-id-title_text")[0].style.display = "none";
+		    $(".android-R-id-content")[0].style.display = "none";
+		    $(".R-id-adView")[0].style.display = "none";
+		} else if (text == "R.id.title_text") {
+		    $(".id")[0].style.display = "none";
+		    $(".android-R-id-home")[0].style.display = "none";
+		    $(".ellips")[0].style.display = "none";
+		    $(".R-id-info_button")[0].style.display = "none";
+		    $(".R-id-actionbar_title")[0].style.display = "none";
+		    $(".R-id-title_text")[0].style.display = "inline";
+		    $(".android-R-id-content")[0].style.display = "none";
+		    $(".R-id-adView")[0].style.display = "none";
+		} else if (text == "android.R.id.content") {
+		    $(".id")[0].style.display = "none";
+		    $(".android-R-id-home")[0].style.display = "none";
+		    $(".ellips")[0].style.display = "none";
+		    $(".R-id-info_button")[0].style.display = "none";
+		    $(".R-id-actionbar_title")[0].style.display = "none";
+		    $(".R-id-title_text")[0].style.display = "none";
+		    $(".android-R-id-content")[0].style.display = "inline";
+		    $(".R-id-adView")[0].style.display = "none";
+		} else if (text == "R.id.adView") {
+		    $(".id")[0].style.display = "none";
+		    $(".android-R-id-home")[0].style.display = "none";
+		    $(".ellips")[0].style.display = "none";
+		    $(".R-id-info_button")[0].style.display = "none";
+		    $(".R-id-actionbar_title")[0].style.display = "none";
+		    $(".R-id-title_text")[0].style.display = "none";
+		    $(".android-R-id-content")[0].style.display = "none";
+		    $(".R-id-adView")[0].style.display = "inline";
+		} else {
+		    $(".ellips")[0].style.display = "inline";
+		    $(".android-R-id-home")[0].style.display = "none";
+		    $(".id")[0].style.display = "none";
+		    $(".R-id-info_button")[0].style.display = "none";
+		    $(".R-id-actionbar_title")[0].style.display = "none";
+		    $(".R-id-title_text")[0].style.display = "none";
+		    $(".android-R-id-content")[0].style.display = "none";
+		    $(".R-id-adView")[0].style.display = "none";
 		}
             });
 
@@ -197,16 +350,146 @@ View <span class="interest-item-3">view</span> = <span class="interest-item-1">a
 		// update the selected item in my-check
 		if (text == 'view != null') {
 		    $('#my-check-selected').html("<span class=\"interest-item-3\">view</span> != null");
+		} else if (text == "view == null") {
+		    $('#my-check-selected').html("<span class=\"interest-item-3\">view</span> == null");	
 		} else {
 		    $('#my-check-selected').html(this.id);
 		}
-
-		// if the user selects up != null
+		
+		// update the declaration statement
 		if(text == 'up != null') {
 		    $("#up-decl")[0].style.display = 'inline';
-		    $("#id-dec;")[0].style.display = 'none';
-	    	} else {
+		    $("#id-decl")[0].style.display = 'none';
+	            $("#yboTvProFound-decl")[0].style.display = 'none';
+	    	} else if (text == 'yboTvProFound') {
 		    $("#up-decl")[0].style.display = 'none';
+		    $("#id-decl")[0].style.display = 'none';
+	            $("#yboTvProFound-decl")[0].style.display = 'inline';			
+		} else {
+		    $("#up-decl")[0].style.display = 'none';
+		    $("#id-decl")[0].style.display = 'none';
+	            $("#yboTvProFound-decl")[0].style.display = 'none';			
+		}
+
+		// customize the content in the argment menu
+		if(text == 'view != null') {
+		    $('#my-arg-selected').html("select an argument");
+                    $("#my-arg").find('a').each(function(i) {
+			if (this.id == "id" || this.id == "R.id.actionbar_title" || this.id == "android.R.id.content") {
+			    // reset this option's color to black
+			    this.style.color = "black";
+		     	} else {
+			    // gray out the rest
+			    this.style.color = "silver";
+			}
+		    });
+	    	} else if (text == 'view == null') {
+		    $('#my-arg-selected').html("android.R.id.home");
+                    $("#my-arg").find('a').each(function(i) {
+			if (this.id == "android.R.id.home") {
+			    // reset this option's color to black
+			    this.style.color = "black";
+		     	} else {
+			    // gray out the rest
+			    this.style.color = "silver";
+			}
+		    });
+	    	} else if (text == '!hasSeenInfoDialog(activity)') {
+		    $('#my-arg-selected').html("R.id.info_button");
+                    $("#my-arg").find('a').each(function(i) {
+			if (this.id == "R.id.info_button") {
+			    // reset this option's color to black
+			    this.style.color = "black";
+		     	} else {
+			    // gray out the rest
+			    this.style.color = "silver";
+			}
+		    });
+	    	} else if (text == 'up != null') {
+		    $('#my-arg-selected').html("R.id.title_text");
+                    $("#my-arg").find('a').each(function(i) {
+			if (this.id == "R.id.title_text") {
+			    // reset this option's color to black
+			    this.style.color = "black";
+		     	} else {
+			    // gray out the rest
+			    this.style.color = "silver";
+			}
+		    });
+	    	} else if (text == 'yboTvProFound') {
+		    $('#my-arg-selected').html("R.id.adView");
+                    $("#my-arg").find('a').each(function(i) {
+			if (this.id == "R.id.adView") {
+			    // reset this option's color to black
+			    this.style.color = "black";
+		     	} else {
+			    // gray out the rest
+			    this.style.color = "silver";
+			}
+		    });		
+		} else {
+		    $("#up-decl")[0].style.display = 'none';
+		    $("#id-decl")[0].style.display = 'none';
+	            $("#yboTvProFound-decl")[0].style.display = 'none';			
+		}
+
+		// customize the content in the if block
+		if(text == "view == null") {
+		    $(".android-R-id-home")[0].style.display = "inline";
+		    $(".ellips")[0].style.display = "none";
+		    $(".id")[0].style.display = "none";
+		    $(".R-id-info_button")[0].style.display = "none";
+		    $(".R-id-actionbar_title")[0].style.display = "none";
+		    $(".R-id-title_text")[0].style.display = "none";
+		    $(".android-R-id-content")[0].style.display = "none";
+		    $(".R-id-adView")[0].style.display = "none";
+	 	} else if (text == "!hasSeenInfoDialog(activity)") {
+		    $(".id")[0].style.display = "none";
+		    $(".android-R-id-home")[0].style.display = "none";
+		    $(".ellips")[0].style.display = "none";
+		    $(".R-id-info_button")[0].style.display = "inline";
+		    $(".R-id-actionbar_title")[0].style.display = "none";
+		    $(".R-id-title_text")[0].style.display = "none";
+		    $(".android-R-id-content")[0].style.display = "none";
+		    $(".R-id-adView")[0].style.display = "none";
+		} else if (text == "up != null") {
+		    $(".id")[0].style.display = "none";
+		    $(".android-R-id-home")[0].style.display = "none";
+		    $(".ellips")[0].style.display = "none";
+		    $(".R-id-info_button")[0].style.display = "none";
+		    $(".R-id-actionbar_title")[0].style.display = "none";
+		    $(".R-id-title_text")[0].style.display = "inline";
+		    $(".android-R-id-content")[0].style.display = "none";
+		    $(".R-id-adView")[0].style.display = "none";
+		} else if (text == "yboTvProFound") {
+		    $(".id")[0].style.display = "none";
+		    $(".android-R-id-home")[0].style.display = "none";
+		    $(".ellips")[0].style.display = "none";
+		    $(".R-id-info_button")[0].style.display = "none";
+		    $(".R-id-actionbar_title")[0].style.display = "none";
+		    $(".R-id-title_text")[0].style.display = "none";
+		    $(".android-R-id-content")[0].style.display = "none";
+		    $(".R-id-adView")[0].style.display = "inline";
+		} else {
+		    $(".ellips")[0].style.display = "inline";
+		    $(".android-R-id-home")[0].style.display = "none";
+		    $(".id")[0].style.display = "none";
+		    $(".R-id-info_button")[0].style.display = "none";
+		    $(".R-id-actionbar_title")[0].style.display = "none";
+		    $(".R-id-title_text")[0].style.display = "none";
+		    $(".android-R-id-content")[0].style.display = "none";
+		    $(".R-id-adView")[0].style.display = "none";
+		}
+            });
+
+	    $('#my-call').find('a').click(function() {		
+		var text = this.id;
+
+		// update the selected item in my-call
+		if (text == 'view.setText(...)') {
+		    $('#my-call-selected').html("<span class=\"interest-item-3\">view</span>.setText(...);");
+		} else {
+		    $('#my-call-selected').html("clickOnView(activity, <span class=\"interest-item-3\">view</span>);");
 		}
             });
         });

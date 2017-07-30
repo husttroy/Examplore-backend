@@ -72,6 +72,9 @@ body {
     .loc {
         padding: 2px;
     }
+    .fix-height {
+	min-height:200px;
+    }
 
     /* for dropdown menu */
     .dropbtn {
