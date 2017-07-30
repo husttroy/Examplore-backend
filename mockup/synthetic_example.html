@@ -162,7 +162,12 @@ View <span class="interest-item-3">view</span> = <span class="interest-item-1">a
 		// update the selected item in my-arg
                 $('#my-arg-selected').html(this.id);
 
-		//TODO: repaint the menu items when a user selects a greyed-out item
+		//reset the colors of menu items when a user selects a greyed-out item
+		if(this.style.color == "silver") {
+		    $("#my-arg").find('a').each(function(i) {
+			this.style.color = "black";
+		    });
+		}
 	        
 		// update the declaration statements
 		if(text == "id") {
@@ -354,6 +359,13 @@ View <span class="interest-item-3">view</span> = <span class="interest-item-1">a
 		    $('#my-check-selected').html("<span class=\"interest-item-3\">view</span> == null");	
 		} else {
 		    $('#my-check-selected').html(this.id);
+		}
+
+		//reset the colors of menu items when a user selects a greyed-out item
+		if(this.style.color == "silver") {
+		    $("#my-check").find('a').each(function(i) {
+			this.style.color = "black";
+		    });
 		}
 		
 		// update the declaration statement
