@@ -130,13 +130,13 @@
         <div class="col-sm-4">
 	  <span>Synthesized Code Example</span>
           <pre class="loc"><code class="fix-height">Activity activity = ...;<span id="id-decl" style="display: none">
-int id = null;</span><span id="up-decl" style="display: none">
+int id = ...;</span><span id="up-decl" style="display: none">
 Intent up = ...;</span><span id="yboTvProFound-decl" style="display: none"> 
 boolean yboTvProFound = false;
 ...</span>
 View <span class="interest-item-3">view</span> = <span class="interest-item-1">activity.findViewById</span>(<div id='my-arg' class="dropdown"><button class="dropbtn"><span id="my-arg-selected">select an argument</span> <span class="caret"></span></button><div class="dropdown-content"><a id="android.R.id.home" href="#">android.R.id.home : 7</a><a id="id" href="#">id : 4</a><a id="R.id.info_button" href="#">R.id.info_button : 3</a><a id="R.id.actionbar_title" href="#">R.id.actionbar_title : 3</a><a id="R.id.title_text" href="#">R.id.title_text : 1</a><a id="android.R.id.content" href="#">android.R.id.content : 1</a><a id="R.id.adView" href="#">R.id.adView : 1</a></div></div>);
 <span class="interest-item-2">if(<div id='my-check' class="dropdown"><button class="dropbtn"><span id="my-check-selected">select a condition</span> <span class="caret"></span></button><div class="dropdown-content"><a id="view != null" href="#"><span class="interest-item-3">view</span> != null : 8</a><a id="view == null" href="#"><span class="interest-item-3">view</span> == null : 7</a><a id="!hasSeenInfoDialog(activity)" href="#">!hasSeenInfoDialog(activity) : 3</a><a id="up != null" href="#">up != null : 1</a><a id="yboTvProFound" href="#">yboTvProFound : 1</a></div></div>)</span> {
-  <span class="ellips" style="display:inline">...</span><span class="android-R-id-home" style="display:none"><span class="interest-item-3">view</span> = <span class="interest-item-1">activity.findViewById</span>(R.id.abs_home);</span><span class="id" style="display:none"><div id="my-call" class="dropdown"><button class="dropbtn"><span id="my-call-selected">select a method call</span> <span class="caret"></button><div class="dropdown-content"><a id="view.setText(...)" href="#"><span class="interest-item-3">view</span>.<span class="interest-item-7">setText</span>(...); : 2</a><a id="clickOnView(activity, view)" href="#">clickOnView(activity, <span class="interest-item-3">view</span>); : 2</a></div></div></span><span class="R-id-info_button" style="display:none">showInfoDialog(activity, ...);</span><span class="R-id-actionbar_title" style="display:none"><span class="interest-item-3">view</span>.<span class="interest-item-7">setText</span>(...);</span><span class="R-id-title_text" style="display:none">setTitleButton(activity, up);</span><span class="android-R-id-content" style="display:none"><span class="interest-item-3">view</span>.<span class="interest-item-7">removeView</span>(...);</span><span class="R-id-adView" style="display:none">View view2 = <span class="interest-item-1">activity.findViewById</span>(R.id.ad_container);
+  <span class="ellips" style="display:inline">...</span><span class="android-R-id-home" style="display:none"><span class="interest-item-3">view</span> = <span class="interest-item-1">activity.findViewById</span>(R.id.abs_home);</span><span class="id" style="display:none"><div id="my-call" class="dropdown"><button class="dropbtn"><span id="my-call-selected">select a method call</span> <span class="caret"></button><div class="dropdown-content"><a id="view.setText(...)" href="#"><span class="interest-item-3">view</span>.<span class="interest-item-7">setText</span>(...); : 2</a><a id="clickOnView(activity, view)" href="#"><span class="interest-item-8">clickOnView</span>(activity, <span class="interest-item-3">view</span>); : 2</a></div></div></span><span class="R-id-info_button" style="display:none">showInfoDialog(activity, ...);</span><span class="R-id-actionbar_title" style="display:none"><span class="interest-item-3">view</span>.<span class="interest-item-7">setText</span>(...);</span><span class="R-id-title_text" style="display:none">setTitleButton(activity, up);</span><span class="android-R-id-content" style="display:none"><span class="interest-item-3">view</span>.<span class="interest-item-7">removeView</span>(...);</span><span class="R-id-adView" style="display:none">View view2 = <span class="interest-item-1">activity.findViewById</span>(R.id.ad_container);
   ...</span>
 }
 
@@ -144,9 +144,126 @@ View <span class="interest-item-3">view</span> = <span class="interest-item-1">a
 </code></pre>
         </div>
 
-        <div class="col-sm-4">
-          <span>Real Code Example</span><div style="float:right"><span id="frequency" class="badge">2</span></div>
-	  <pre class="loc"><code class="fix-height"> real example placeholder </code></pre>
+        <div class="col-sm-6">
+          <span>Real Code Example</span><span id="example-url" style="display:none"> (<a href="#">GitHub Link</a>)</span><div style="float:right"><span id="frequency" class="badge">0</span></div>
+	  <pre class="loc"><code class="fix-height"><span id="example1" style="display:none">private static class SetIndicatorInfo {
+    public Method setHomeAsUpIndicator;
+    public Method setHomeActionContentDescription;
+    public ImageView upIndicatorView;
+
+    SetIndicatorInfo(Activity activity) {
+        ...
+        int homeRes = android.R.id.home;
+        View <span class="interest-item-3">home</span> = <span class="interest-item-1">activity.findViewById</span>(homeRes);
+
+        <span class="interest-item-2">if (<span class="interest-item-3">home</span> == null)</span> {
+            <span class="interest-item-3">home</span> = <span class="interest-item-1">activity.findViewById</span>(R.id.abs__home);
+            homeRes = R.id.abs__home;
+        }
+        final ViewGroup parent = (ViewGroup) home.getParent();
+        final int childCount = parent.getChildCount();
+        if (childCount != 2) {
+            // No idea which one will be the right one, an OEM messed with things.
+            return;
+        }
+
+        final View first = parent.getChildAt(0);
+        final View second = parent.getChildAt(1);
+        final View up = first.getId() == homeRes ? second : first;
+
+
+        if ((up != null) && (up instanceof ImageView)) {
+            // Jackpot! (Probably...)
+            upIndicatorView = (ImageView) up;
+        }
+    }
+}</span><span id="example2" style="display:none">private static void setDistanceValue(Activity activity, int id, double distance, boolean metricUnits) {
+  TextView <span class="interest-item-3">textView</span> = (TextView) <span class="interest-item-1">activity.findViewById</span>(id);
+  <span class="interest-item-2">if (<span class="interest-item-3">textView</span> == null)</span> {
+    return;
+  }
+  <span class="interest-item-3">textView</span><span class="interest-item-7">.setText</span>(StringUtils.formatDistance(activity, distance, metricUnits));
+}</span><span id="example3" style="display:none">public static void <span class="interest-item-8">clickOnView</span>(Activity activity, int id) {
+    View <span class="interest-item-3">view</span> = <span class="interest-item-1">activity.findViewById</span>(id);
+    <span class="interest-item-2">if (<span class="interest-item-3">view</span> != null)</span> <span class="interest-item-8">clickOnView</span>(activity, <span class="interest-item-3">view</span>);
+}</span><span id="example4" style="display:none">private static void setInfo(final android.app.Activity activity, final int titleId, final int messageId, final int viewId) {
+    // Show the middle "info" button and make it show the info dialog when clicked.
+    View <span class="interest-item-3">infoButton</span> = <span class="interest-item-1">activity.findViewById</span>(R.id.info_button);
+    infoButton.setVisibility(View.VISIBLE);
+    infoButton.setOnClickListener(new OnClickListener() {
+        public void onClick(View view) {
+            showInfoDialog(activity, titleId, messageId, viewId);
+        }
+    });
+    // Show the info dialog if the user has never seen it before.
+    <span class="interest-item-2">if (!hasSeenInfoDialog(activity))</span> {
+        showInfoDialog(activity, titleId, messageId, viewId);
+    }
+}</span><span id="example5" style="display:none">public void setTitle(Activity activity, String text) {
+    if (activity == null || text == null) {
+      return;
+    }
+
+    final TextView <span class="interest-item-3">title</span> = (TextView) <span class="interest-item-1">activity.findViewById</span>(R.id.actionbar_title);
+    <span class="interest-item-2">if (<span class="interest-item-3">title</span> != null)</span> {
+        <span class="interest-item-3">title</span><span class="interest-item-7">.setText</span>(text);
+    }
+}</span><span id="example6" style="display:none">public static void setTitle(Activity activity, String title, Intent up) {
+    ((TextView) <span class="interest-item-1">activity.findViewById</span>(R.id.title_text))<span class="interest-item-7">.setText</span>(title);
+    
+    <span class="interest-item-2">if (up != null)</span> // send a null up intent to disable up button
+      setTitleButton(activity, up); 
+}</span><span id="example7" style="display:none">public void onHideCustomView() {
+    super.onHideCustomView();
+
+    if ((context == null) || (frame == null)) {
+        Clog.w(Clog.baseLogTag, Clog.getString(R.string.fullscreen_video_hide_error));
+        return;
+    }
+    ViewGroup <span class="interest-item-3">root</span> = (ViewGroup) <span class="interest-item-1">context.findViewById</span>(android.R.id.content);
+    <span class="interest-item-2">if (<span class="interest-item-3">root</span> == null)</span> {
+        Clog.w(Clog.baseLogTag, Clog.getString(R.string.fullscreen_video_hide_error));
+        return;
+    }
+
+    <span class="interest-item-3">root</span><span class="interest-item-7">.removeView</span>(frame);
+
+    if (views != null) {
+        // restore the views that were originally there
+        for (Pair<View, Integer> child : views) {
+            child.first.setVisibility(child.second);
+        }
+    }
+    views = null;
+
+    if (customViewCallback != null)
+        customViewCallback.onCustomViewHidden();
+}</span><span id="example8" style="display:none">public static void manageAds(Activity activity) {
+    final PackageManager pm = activity.getPackageManager();
+    //get a list of installed apps.
+    List<ApplicationInfo> packages = pm.getInstalledApplications(PackageManager.GET_META_DATA);
+
+    boolean yboTvProFound = false;
+
+    for (ApplicationInfo info : packages) {
+        if (PACKAGE_PRO.equals(info.packageName)) {
+            yboTvProFound = true;
+            break;
+        }
+    }
+
+    // Look up the AdView as a resource and load a request.
+    AdView <span class="interest-item-3">adView</span> = (AdView)<span class="interest-item-1">activity.findViewById</span>(R.id.adView);
+    <span class="interest-item-2">if (yboTvProFound)</span> {
+        View <span class="interest-item-4">layout</span> = <span class="interest-item-1">activity.findViewById</span>(R.id.ad_container);
+        FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) layout.getLayoutParams();
+        layoutParams.bottomMargin = 0;
+        layout.setLayoutParams(layoutParams);
+        adView.setVisibility(View.GONE);
+    } else {
+        adView.loadAd(new AdRequest());
+    }
+}</span></code></pre>
         </div>
       </div>
     </div>
@@ -155,6 +272,8 @@ View <span class="interest-item-3">view</span> = <span class="interest-item-1">a
     <script class="cssdeck" src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
 
     <script>
+	var curr = null;
+
         $(function() {
 	    $('#my-arg').find('a').click(function() {
                 var text = this.id;
@@ -347,6 +466,52 @@ View <span class="interest-item-3">view</span> = <span class="interest-item-1">a
 		    $(".android-R-id-content")[0].style.display = "none";
 		    $(".R-id-adView")[0].style.display = "none";
 		}
+
+		// customize the real example view
+		if(curr != null) {
+		    // hide the previous shown example
+		    $("#" + curr)[0].style.display = "none";
+		    $('#frequency').html("0");
+		    $("#example-url")[0].style.display = "none";
+		    $("#example-url").find("a")[0].href="#";
+		}
+		if(text == "android.R.id.home") {
+		    $('#frequency').html("7");
+                    $("#example1")[0].style.display = "inline";
+		    curr = "example1";
+		    $("#example-url")[0].style.display = "inline";
+		    $("#example-url").find("a")[0].href="https://github.com/practo/ActionBarSherlock/blob/a34c1d673406980cb5ecfaab98988558d9c606b5/library/src/com/actionbarsherlock/app/SherlockActionBarToggleCompat.java";
+	 	} else if (text == "R.id.info_button") {
+		    $('#frequency').html("1");
+                    $("#example4")[0].style.display = "inline";
+		    curr = "example4";
+		    $("#example-url")[0].style.display = "inline";
+		    $("#example-url").find("a")[0].href="https://github.com/mkedwards/android_cts/blob/6a2dedee137f39f732898de28e1e0ef20550dcca/apps/CtsVerifier/src/com/android/cts/verifier/PassFailButtons.java";
+		} else if (text == "R.id.actionbar_title") {
+		    $('#frequency').html("3");
+                    $("#example5")[0].style.display = "inline";
+		    curr = "example5";
+		    $("#example-url")[0].style.display = "inline";
+		    $("#example-url").find("a")[0].href="https://github.com/carnero/c-geo/blob/d92c90355b43a0c12508888132bbeb3880dac89b/src/carnero/cgeo/cgBase.java";
+		} else if (text == "R.id.title_text") {
+		    $('#frequency').html("3");
+                    $("#example6")[0].style.display = "inline";
+		    curr = "example6";
+                    $("#example-url")[0].style.display = "inline";
+		    $("#example-url").find("a")[0].href="https://github.com/konklone/congress-android/blob/e8b7b13dcedb5fa7341ad7069e4f9dc505c7de8b/src/com/sunlightlabs/android/congress/utils/ActionBarUtils.java";
+		} else if (text == "android.R.id.content") {
+		    $('#frequency').html("1");
+                    $("#example7")[0].style.display = "inline";
+		    curr = "example7";
+		    $("#example-url")[0].style.display = "inline";
+		    $("#example-url").find("a")[0].href="https://github.com/appnexus/mobile-sdk-android/blob/fe7e5b7047f27ba9cadd400560e005bcca473330/sdk/src/com/appnexus/opensdk/VideoEnabledWebChromeClient.java";
+		} else if (text == "R.id.adView") {
+		    $('#frequency').html("1");
+                    $("#example8")[0].style.display = "inline";
+		    curr = "example8";
+		    $("#example-url")[0].style.display = "inline";
+		    $("#example-url").find("a")[0].href="https://github.com/ybonnel/ybo-tv-android/blob/fb947f3f7521643b0380fa0a90bdd0ed8f915bf0/src/main/java/fr/ybo/ybotv/android/util/AdMobUtil.java";
+		}
             });
 
    	    $('#my-check').find('a').click(function() {		
@@ -492,6 +657,40 @@ View <span class="interest-item-3">view</span> = <span class="interest-item-1">a
 		    $(".android-R-id-content")[0].style.display = "none";
 		    $(".R-id-adView")[0].style.display = "none";
 		}
+
+		// customize the real example view
+		if(curr != null) {
+		    // hide the previous shown example
+		    $("#" + curr)[0].style.display = "none";
+                    $('#frequency').html("0");
+		    $("#example-url")[0].style.display = "none";
+		    $("#example-url").find("a")[0].href="#";
+		}
+		if(text == "view == null") {
+		    $('#frequency').html("7");
+                    $("#example1")[0].style.display = "inline";
+		    curr = "example1";
+		    $("#example-url")[0].style.display = "inline";
+		    $("#example-url").find("a")[0].href="https://github.com/practo/ActionBarSherlock/blob/a34c1d673406980cb5ecfaab98988558d9c606b5/library/src/com/actionbarsherlock/app/SherlockActionBarToggleCompat.java";
+	 	} else if (text == "!hasSeenInfoDialog(activity)") {
+		    $('#frequency').html("3");
+                    $("#example4")[0].style.display = "inline";
+		    curr = "example4";
+		    $("#example-url")[0].style.display = "inline";
+		    $("#example-url").find("a")[0].href="https://github.com/mkedwards/android_cts/blob/6a2dedee137f39f732898de28e1e0ef20550dcca/apps/CtsVerifier/src/com/android/cts/verifier/PassFailButtons.java";
+		} else if (text == "up != null") {
+		    $('#frequency').html("1");
+                    $("#example6")[0].style.display = "inline";
+		    curr = "example6";
+		    $("#example-url")[0].style.display = "inline";
+		    $("#example-url").find("a")[0].href="https://github.com/konklone/congress-android/blob/e8b7b13dcedb5fa7341ad7069e4f9dc505c7de8b/src/com/sunlightlabs/android/congress/utils/ActionBarUtils.java";
+		} else if (text == "yboTvProFound") {
+		    $('#frequency').html("1");
+                    $("#example8")[0].style.display = "inline";
+		    curr = "example8";
+		    $("#example-url")[0].style.display = "inline";
+		    $("#example-url").find("a")[0].href="https://github.com/ybonnel/ybo-tv-android/blob/fb947f3f7521643b0380fa0a90bdd0ed8f915bf0/src/main/java/fr/ybo/ybotv/android/util/AdMobUtil.java";
+		}
             });
 
 	    $('#my-call').find('a').click(function() {		
@@ -499,9 +698,31 @@ View <span class="interest-item-3">view</span> = <span class="interest-item-1">a
 
 		// update the selected item in my-call
 		if (text == 'view.setText(...)') {
-		    $('#my-call-selected').html("<span class=\"interest-item-3\">view</span>.setText(...);");
+		    $('#my-call-selected').html("<span class=\"interest-item-3\">view</span>.<span class=\"interest-item-7\">setText</span>(...);");
 		} else {
-		    $('#my-call-selected').html("clickOnView(activity, <span class=\"interest-item-3\">view</span>);");
+		    $('#my-call-selected').html("<span class=\"interest-item-8\">clickOnView</span>(activity, <span class=\"interest-item-3\">view</span>);");
+		}
+
+		// customize the real example view
+		if(curr != null) {
+		    // hide the previous shown example
+		    $("#" + curr)[0].style.display = "none";
+                    $('#frequency').html("0");
+		    $("#example-url")[0].style.display = "none";
+		    $("#example-url").find("a")[0].href="#";
+		}
+		if(text == "view.setText(...)") {
+		    $('#frequency').html("2");
+                    $("#example2")[0].style.display = "inline";
+		    curr = "example2";
+		    $("#example-url")[0].style.display = "inline";
+		    $("#example-url").find("a")[0].href="https://github.com/fumingshih/mytracks/blob/090d8f26a91d134d652c4f205abb7cf9011d8642/MyTracks/src/com/google/android/apps/mytracks/util/StatsUtils.java";
+	 	} else if (text == "clickOnView(activity, view)") {
+		    $('#frequency').html("2");
+                    $("#example3")[0].style.display = "inline";
+		    curr = "example3";
+		    $("#example-url")[0].style.display = "inline";
+		    $("#example-url").find("a")[0].href="https://github.com/cucumber/cucumber-jvm/blob/77ef8a29c5c7d1c4916bda1625dfd5013556c337/examples/android/cukeulator-test/src/cucumber/example/android/cukeulator/test/Utils.java";
 		}
             });
         });
