@@ -295,7 +295,91 @@ View <span class="interest-item-3">view</span> = <span class="interest-item-1">a
         
         <div class="col-sm-6">
           <span>Real Code Example</span><span id="example-url2" style="display:none"> (<a href="#">GitHub Link</a>)</span><div style="float:right"><span id="frequency2" class="badge">0</span></div>
-	  <pre class="loc"><code style="min-height:300px"></code></pre>
+	  <pre class="loc"><code style="min-height:300px"><span id="example21" style="display:none">public class NumberKeyListenerTest 
+         extends ActivityInstrumentationTestCase2< KeyListenerStubActivity > {
+
+    private Activity mActivity;
+
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        <span class="interest-item-3">mActivity</span> = <span class="interest-item-5">getActivity</span>();
+        mInstrumentation = getInstrumentation();
+        mTextView = (TextView) <span class="interest-item-1"><span class="interest-item-3">mActivity</span>.findViewById</span>(R.id.keylistener_textview);
+    }
+}</span><span id="example22" style="display:none">public class AutoCompleteTextViewTest 
+         extends ActivityInstrumentationTestCase2< AutoCompleteStubActivity > {
+
+    private Activity mActivity;
+
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        <span class="interest-item-3">mActivity</span> = <span class="interest-item-5">getActivity</span>();
+        mInstrumentation = getInstrumentation();
+        mAutoCompleteTextView = (AutoCompleteTextView) <span class="interest-item-1"><span class="interest-item-3">mActivity</span>.findViewById</span>(R.id.autocompletetv_edit);
+        mAdapter = new ArrayAdapter< String >(mActivity, android.R.layout.simple_dropdown_item_1line, WORDS);
+    }
+}</span><span id="example23" style="display:none">public class SettingsActivityTest 
+         extends ActivityInstrumentationTestCase2< SettingsActivity > {
+
+    private Activity activity;
+
+    @Override
+    public void setUp() throws Exception{
+        super.setUp();
+        <span class="interest-item-3">activity</span> = <span class="interest-item-5">getActivity</span>();
+        spinner = (Spinner) <span class="interest-item-1"><span class="interest-item-3">activity</span>.findViewById</span>(R.id.language_spinner);
+        origSpinnerPosition = spinner.getSelectedItemPosition();
+    }
+}</span><span id="example24" style="display:none">public class FrameLayoutTest 
+         extends ActivityInstrumentationTestCase2< FrameLayoutStubActivity > {
+
+    private Activity mActivity;
+
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+
+        <span class="interest-item-3">mActivity</span> = <span class="interest-item-5">getActivity</span>();
+        mInstrumentation = getInstrumentation();
+        mFrameLayout = (FrameLayout) <span class="interest-item-1"><span class="interest-item-3">mActivity</span>.findViewById</span>(R.id.framelayout);
+        assertNotNull(mActivity);
+        assertNotNull(mInstrumentation);
+        assertNotNull(mFrameLayout);
+    }
+}</span><span id="example25" style="display:none">public class BaseballCardListWithoutDataTest 
+         extends ActivityInstrumentationTestCase2< BaseballCardList > {
+
+    private Activity activity = null;
+
+    @Override
+    public void setUp() throws Exception {
+        super.setUp();
+
+        this.inst = this.getInstrumentation();
+
+        this.<span class="interest-item-3">activity</span> = this.<span class="interest-item-5">getActivity</span>();
+        this.listView = (ListView) this.<span class="interest-item-1"><span class="interest-item-3">activity</span>.findViewById</span>(android.R.id.list);
+
+        InputStream cardInputStream = this.inst.getContext().getAssets().open(DATA_ASSET);
+        this.cardInput = new BaseballCardCsvFileReader(cardInputStream, true);
+        this.dbUtil = new DatabaseUtil(this.activity.getPackageName());
+    }
+}</span><span id="example26" style="display:none">public class FilterOptionsTest 
+         extends ActivityInstrumentationTestCase2< FilterOptions > {
+
+    private Activity activity = null;
+
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+
+        this.<span class="interest-item-3">activity</span> = this.<span class="interest-item-5">getActivity</span>();
+        this.filterOptionsRadioGroup = (RadioGroup) this.<span class="interest-item-1"><span class="interest-item-3">activity</span>.findViewById</span>(R.id.filter_options_radio_group);
+        this.solo = new Solo(this.getInstrumentation(), this.activity);
+    }
+}</span></code></pre>
 	</div>
     </div>
 
@@ -304,6 +388,7 @@ View <span class="interest-item-3">view</span> = <span class="interest-item-1">a
 
     <script>
 	var curr = null;
+	var curr2 = null;
 
         $(function() {
 	    $('#my-arg').find('a').click(function() {
@@ -838,6 +923,52 @@ View <span class="interest-item-3">view</span> = <span class="interest-item-1">a
 			}
 		    });		
 		}
+
+		// customize the real example view
+		if(curr2 != null) {
+		    // hide the previous shown example
+		    $("#" + curr2)[0].style.display = "none";
+		    $('#frequency2').html("0");
+		    $("#example-url2")[0].style.display = "none";
+		    $("#example-url2").find("a")[0].href="#";
+		}
+	       	if(text == 'KeyListenerStubActivity') {
+		    $('#frequency2').html("52");
+                    $("#example21")[0].style.display = "inline";
+		    curr2 = "example21";
+		    $("#example-url2")[0].style.display = "inline";
+		    $("#example-url2").find("a")[0].href="https://github.com/rowboat/cts/blob/57a493737513a1084b2606aba9c29d31f1d6a346/tests/tests/text/src/android/text/method/cts/NumberKeyListenerTest.java";
+	    	} else if (text == 'AutoCompleteStubActivity') {
+		    $('#frequency2').html("3");
+                    $("#example22")[0].style.display = "inline";
+		    curr2 = "example22";
+		    $("#example-url2")[0].style.display = "inline";
+		    $("#example-url2").find("a")[0].href="https://github.com/mkedwards/android_cts/blob/6a2dedee137f39f732898de28e1e0ef20550dcca/tests/tests/widget/src/android/widget/cts/AutoCompleteTextViewTest.java";
+	    	} else if (text == 'SettingsActivity') {
+		    $('#frequency2').html("1");
+                    $("#example23")[0].style.display = "inline";
+		    curr2 = "example23";
+		    $("#example-url2")[0].style.display = "inline";
+		    $("#example-url2").find("a")[0].href="https://github.com/ese-unibe-ch/ese2013-team7/blob/79fa2a5dfeab39103dec8878e7c6a128d09d3f11/Programming/MensaTest/src/com/ese2013/mensaunibe/settings/test/SettingsActivityTest.java";
+	    	} else if (text == 'FrameLayoutStubActivity') {
+		    $('#frequency2').html("3");
+                    $("#example24")[0].style.display = "inline";
+		    curr2 = "example24";
+		    $("#example-url2")[0].style.display = "inline";
+		    $("#example-url2").find("a")[0].href="https://github.com/MIPS/cts/blob/709a5cb491aaa76b96fe011934debb3b5d5ce3d7/tests/tests/widget/src/android/widget/cts/FrameLayoutTest.java";
+	    	} else if (text == 'BaseballCardList') {
+		    $('#frequency2').html("2");
+                    $("#example25")[0].style.display = "inline";
+		    curr2 = "example25";
+		    $("#example-url2")[0].style.display = "inline";
+		    $("#example-url2").find("a")[0].href="https://github.com/BaseballCardTracker/bbct/blob/67c5c5fe7c542c61d7dc6e9ef771bafbbde6f7de/android/common/test/src/bbct/android/common/BaseballCardListWithoutDataTest.java";
+		} else if (text == "FilterOptions"){
+		    $('#frequency2').html("1");
+                    $("#example26")[0].style.display = "inline";
+		    curr2 = "example26";
+		    $("#example-url2")[0].style.display = "inline";
+		    $("#example-url2").find("a")[0].href="https://github.com/BaseballCardTracker/bbct/blob/307e98259cf60a0cc55726b9f4f3f28eb7e4415a/android/common/test/src/bbct/android/common/activity/test/FilterOptionsTest.java";	
+		}
             });
 
 	    $('#my-arg2').find('a').click(function() {
@@ -920,6 +1051,52 @@ View <span class="interest-item-3">view</span> = <span class="interest-item-1">a
 			    this.style.color = "silver";
 			}
 		    });		
+		}
+
+		// customize the real example view
+		if(curr2 != null) {
+		    // hide the previous shown example
+		    $("#" + curr2)[0].style.display = "none";
+		    $('#frequency2').html("0");
+		    $("#example-url2")[0].style.display = "none";
+		    $("#example-url2").find("a")[0].href="#";
+		}
+	       	if(text == 'R.id.keylistener_textview') {
+		    $('#frequency2').html("52");
+                    $("#example21")[0].style.display = "inline";
+		    curr2 = "example21";
+		    $("#example-url2")[0].style.display = "inline";
+		    $("#example-url2").find("a")[0].href="https://github.com/rowboat/cts/blob/57a493737513a1084b2606aba9c29d31f1d6a346/tests/tests/text/src/android/text/method/cts/NumberKeyListenerTest.java";
+	    	} else if (text == 'R.id.autocompletetv_edit') {
+		    $('#frequency2').html("3");
+                    $("#example22")[0].style.display = "inline";
+		    curr2 = "example22";
+		    $("#example-url2")[0].style.display = "inline";
+		    $("#example-url2").find("a")[0].href="https://github.com/mkedwards/android_cts/blob/6a2dedee137f39f732898de28e1e0ef20550dcca/tests/tests/widget/src/android/widget/cts/AutoCompleteTextViewTest.java";
+	    	} else if (text == 'R.id.language_spinner') {
+		    $('#frequency2').html("1");
+                    $("#example23")[0].style.display = "inline";
+		    curr2 = "example23";
+		    $("#example-url2")[0].style.display = "inline";
+		    $("#example-url2").find("a")[0].href="https://github.com/ese-unibe-ch/ese2013-team7/blob/79fa2a5dfeab39103dec8878e7c6a128d09d3f11/Programming/MensaTest/src/com/ese2013/mensaunibe/settings/test/SettingsActivityTest.java";
+	    	} else if (text == 'R.id.framelayout') {
+		    $('#frequency2').html("3");
+                    $("#example24")[0].style.display = "inline";
+		    curr2 = "example24";
+		    $("#example-url2")[0].style.display = "inline";
+		    $("#example-url2").find("a")[0].href="https://github.com/MIPS/cts/blob/709a5cb491aaa76b96fe011934debb3b5d5ce3d7/tests/tests/widget/src/android/widget/cts/FrameLayoutTest.java";
+	    	} else if (text == 'android.R.id.list') {
+		    $('#frequency2').html("2");
+                    $("#example25")[0].style.display = "inline";
+		    curr2 = "example25";
+		    $("#example-url2")[0].style.display = "inline";
+		    $("#example-url2").find("a")[0].href="https://github.com/BaseballCardTracker/bbct/blob/67c5c5fe7c542c61d7dc6e9ef771bafbbde6f7de/android/common/test/src/bbct/android/common/BaseballCardListWithoutDataTest.java";
+		} else if (text == "R.id.filter_options_radio_group"){
+		    $('#frequency2').html("1");
+                    $("#example26")[0].style.display = "inline";
+		    curr2 = "example26";
+		    $("#example-url2")[0].style.display = "inline";
+		    $("#example-url2").find("a")[0].href="https://github.com/BaseballCardTracker/bbct/blob/307e98259cf60a0cc55726b9f4f3f28eb7e4415a/android/common/test/src/bbct/android/common/activity/test/FilterOptionsTest.java";	
 		}
             });
         });
