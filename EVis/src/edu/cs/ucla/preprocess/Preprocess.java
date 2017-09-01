@@ -8,8 +8,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
 
 import edu.cs.ucla.model.APICall;
 import edu.cs.ucla.model.ControlConstruct;
@@ -424,37 +432,36 @@ public class Preprocess {
 				continue;
 			}
 			
-			String[] lines = code.split(System.lineSeparator());
-			ArrayList<Integer> startLines = new ArrayList<Integer>();
-			for (int i = 0; i < lines.length; i++) {
-				String line = lines[i];
-				if (line.contains(methodName + "(")
-						&& (line.trim().endsWith("{")
-								|| line.trim().endsWith("(") || line.trim()
-								.endsWith(","))) {
-					startLines.add(i);
-				}
-			}
-
-			for (int startLine : startLines) {
-				StringBuilder sb = new StringBuilder();
-				for (int i = startLine; i < lines.length; i++) {
-					String line = lines[i];
-					sb.append(lines[i] + System.lineSeparator());
-					if (line.startsWith("  }")) {
-						break;
+			// extract the corresponding method from the source code
+			ASTParser p = getASTParser(code);
+			CompilationUnit cu = (CompilationUnit) p.createAST(null);
+			ArrayList<String> methods = new ArrayList<String>();
+			final String src = code;
+			cu.accept(new ASTVisitor() {
+				@Override
+				public boolean visit(MethodDeclaration node) {
+					if(node.getName().toString().equals(methodName)) {
+						int startLine = cu.getLineNumber(node.getStartPosition()) - 1;
+						int endLine = cu.getLineNumber(node.getStartPosition() + node.getLength()) - 1;
+						String s = "";
+						String[] ss = src.split(System.lineSeparator());
+						for(int i = startLine; i <= endLine; i++) {
+							s += ss[i] + System.lineSeparator();
+						}
+						methods.add(s);
 					}
+					
+					return false;
 				}
-
-				if (sb.toString().contains(focal + "(")) {
-					method = sb.toString();
+			});
+			
+			for(String m : methods) {
+				if(m.contains(focal + "(")) {
+					method = m;
 					break;
-				} else {
-					// overloading method
-					continue;
 				}
 			}
-
+			
 			if (method.equals("empty")) {
 				// only printing those code examples that we can find the matching method
 				continue;
@@ -508,18 +515,19 @@ public class Preprocess {
 			
 			FileUtils.appendStringToFile(sb2.toString() + System.lineSeparator(),  output);
 			
+			String logFile = "/media/troy/Disk2/Boa/apis/Map.get/synthesis.txt";
 			// print raw code
-			System.out.println("Raw code: ");
-			System.out.println(method);
-			System.out.println("Simplified code: ");
+			FileUtils.appendStringToFile("Raw code: \n", logFile);
+			FileUtils.appendStringToFile(method, logFile);
+			FileUtils.appendStringToFile("Simplified code: \n", logFile);
 			ArrayList<APICall> calls = new ArrayList<APICall>();
 			calls.addAll(prevCalls);
 			calls.add(theCall);
 			calls.addAll(postCalls);
 			if(types.containsKey(key)) {
-				System.out.println(synthesizeReableCode(calls, types.get(key)));
+				FileUtils.appendStringToFile(synthesizeReableCode(calls, types.get(key)) + "\n", logFile);
 			} else {
-				System.out.println(synthesizeReableCode(calls, new HashMap<String, String>()));
+				FileUtils.appendStringToFile(synthesizeReableCode(calls, new HashMap<String, String>()) + "\n", logFile);
 			}
 		
 			id++;
@@ -527,6 +535,19 @@ public class Preprocess {
 		
 		// log the number of unreachable urls
 		System.out.println(numOfUnreachableUrls);
+	}
+	
+	private ASTParser getASTParser(String sourceCode) {
+		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		parser.setStatementsRecovery(true);
+		parser.setKind(ASTParser.K_COMPILATION_UNIT);
+		parser.setSource(sourceCode.toCharArray());
+		parser.setResolveBindings(true);
+		parser.setBindingsRecovery(true);
+		Map options = JavaCore.getOptions();
+		JavaCore.setComplianceOptions(JavaCore.VERSION_1_5, options);
+		parser.setCompilerOptions(options);
+		return parser;
 	}
 
 	public static void main(String[] args) {
