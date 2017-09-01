@@ -168,6 +168,77 @@ public class Preprocess {
 			e.printStackTrace();
 		}
 	}
+	
+	public String synthesizeReableCode(ArrayList<APICall> calls, HashMap<String, String> map) {
+		String code = "";
+		HashMap<String, String> dict = new HashMap<String, String>();
+		for(int i = 0; i < calls.size(); i++) {
+			APICall call = calls.get(i);
+			String apiName = call.name.substring(0, call.name.indexOf('('));
+			if(!call.ret.contains(apiName + "(")) {
+				// this call has a return value and its return value is assigned to another variable
+				String retType = "";
+				if(map.containsKey(call.ret)) {
+					retType = map.get(call.ret);
+					code += retType + " " + retType.toLowerCase() + " = ";
+				} else {
+					// cannot resolve the type of the lefthand side variable
+					code += call.ret + " = ";
+				}
+			} else {
+				// this call either does not have a return value or its return value is immediately consumed by another call
+				// scan the succeeding API calls and check
+				boolean isConsumed = false;
+				for(int j = i+1; j < calls.size(); j++) {
+					APICall next = calls.get(j);
+					if(next.arguments.contains(call.ret) || (next.receiver != null && next.receiver.contains(call.ret))) {
+						// yes
+						isConsumed = true;
+						break;
+					}
+				}
+				if(isConsumed) {
+					// introduce a temporary variable to store its value
+					code += "value = ";
+					// put this temporary variable name in the dictionary
+					dict.put(call.ret, "value");
+				}
+			}
+			
+			if(call.receiver != null) {
+				if(map.containsKey(call.receiver)) {
+					String rcvType = map.get(call.receiver);
+					code += rcvType.toLowerCase() + "." + apiName + "(";
+				} else if (dict.containsKey(call.receiver)) {
+					String temp = dict.get(call.receiver);
+					code += temp + "." + apiName + "(";
+				} else {
+					code += call.receiver + "." + apiName + "(";
+				}
+			} else {
+				code += apiName + "(";
+			}
+			
+			if(!call.arguments.isEmpty()) {
+				for(String argument : call.arguments) {
+					if(map.containsKey(argument)) {
+						String argType = map.get(argument);
+						code += argType.toLowerCase() + ", ";
+					} else if (dict.containsKey(argument)) {
+						String temp = dict.get(argument);
+						code += temp + ", ";
+					} else {
+						code += argument + ", ";
+					}
+				}
+				code = code.substring(0, code.length() - 2);
+			}
+			
+			code += ");" + System.lineSeparator();
+		}
+		
+		return code;
+	}
 
 	public void dumpToJson(String output) {
 		if(new File(output).exists()) {
@@ -180,8 +251,8 @@ public class Preprocess {
 			// get focal API call
 			ArrayList<Item> seq = this.seqs.get(key);
 			APICall theCall = null;
-			APICall prevCall = null;
-			APICall postCall = null;
+			ArrayList<APICall> prevCalls = new ArrayList<APICall>();
+			ArrayList<APICall> postCalls = new ArrayList<APICall>();
 			ControlConstruct prevCC = null;
 			ControlConstruct postCC = null;
 			for (int i = 0; i < seq.size(); i++) {
@@ -207,8 +278,7 @@ public class Preprocess {
 							if (prev instanceof APICall) {
 								APICall call = (APICall)prev;
 								if(relVars.contains(call.receiver) || relVars.contains(call.ret)) {
-									prevCall = call;
-									break;
+									prevCalls.add(0, call);
 								}
 							}
 						}
@@ -241,8 +311,7 @@ public class Preprocess {
 								}
 								
 								if(isRelevant) {
-									postCall = call;
-									break;
+									postCalls.add(call);
 								}
 							}
 						}
@@ -350,84 +419,109 @@ public class Preprocess {
 				}
 			}
 			
-			if(code != null) {
-				String[] lines = code.split(System.lineSeparator());
-				ArrayList<Integer> startLines = new ArrayList<Integer>();
-				for(int i = 0; i < lines.length; i++) {
+			if(code == null) {
+				// only printing those examples that we can fetch raw code
+				continue;
+			}
+			
+			String[] lines = code.split(System.lineSeparator());
+			ArrayList<Integer> startLines = new ArrayList<Integer>();
+			for (int i = 0; i < lines.length; i++) {
+				String line = lines[i];
+				if (line.contains(methodName + "(")
+						&& (line.trim().endsWith("{")
+								|| line.trim().endsWith("(") || line.trim()
+								.endsWith(","))) {
+					startLines.add(i);
+				}
+			}
+
+			for (int startLine : startLines) {
+				StringBuilder sb = new StringBuilder();
+				for (int i = startLine; i < lines.length; i++) {
 					String line = lines[i];
-					if(line.contains(methodName + "(") && (line.trim().endsWith("{") || line.trim().endsWith("(") || line.trim().endsWith(","))) {
-						startLines.add(i);
-					}
-				}
-				
-				int start = 0;
-				int end = 0;
-				for(int startLine : startLines) {
-					StringBuilder sb = new StringBuilder();
-					for(int i = startLine; i < lines.length; i++) {
-						String line = lines[i];
-						sb.append(lines[i] + System.lineSeparator());
-						if (line.startsWith("  }")) {
-							start = startLine;
-							end = i;
-							break;
-						}
-					}
-					
-					if(sb.toString().contains(focal + "(")) {
-						method = sb.toString();
+					sb.append(lines[i] + System.lineSeparator());
+					if (line.startsWith("  }")) {
 						break;
-					} else {
-						// overloading method
-						continue;
 					}
 				}
-				
-				if (start != 0 && end != 0 && !method.equals("empty")) {
-					// rewrite the url by appending line numbers
-					url += "#L" + (start+1) + "-L" + (end+1);
+
+				if (sb.toString().contains(focal + "(")) {
+					method = sb.toString();
+					break;
+				} else {
+					// overloading method
+					continue;
 				}
-			} else {
-				url = "empty";
+			}
+
+			if (method.equals("empty")) {
+				// only printing those code examples that we can find the matching method
+				continue;
 			}
 			
 			// construct the json string
 			StringBuilder sb2 = new StringBuilder();
-			sb2.append("{\"example_id\": " + id + ", ");
+			sb2.append("{\"exampleID\": " + id + ", ");
 			if(prevCC == null) {
-				sb2.append("\"immediate-control-structure\": \"empty\", ");
-				sb2.append("\"associated-predicate\": \"empty\", ");
+				sb2.append("\"immediateControlStructure\": \"empty\", ");
+				sb2.append("\"associatedPredicate\": \"empty\", ");
 			} else {
-				sb2.append("\"immediate-control-structure\": \"" + prevCC.type + "\", ");
-				sb2.append("\"associated-predicate\": \"" + (prevCC.guard == null ? "empty" : StringEscapeUtils.escapeJava(prevCC.guard)) + "\", ");
+				sb2.append("\"immediateControlStructure\": \"" + prevCC.type + "\", ");
+				sb2.append("\"associatedPredicate\": \"" + (prevCC.guard == null ? "empty" : StringEscapeUtils.escapeJava(prevCC.guard)) + "\", ");
 			}
 			
-			sb2.append("\"focal-API\": \"" + theCall.name + "\", ");
+			sb2.append("\"focalAPI\": \"" + theCall.name + "\", ");
 			
 			if(postCC == null) {
-				sb2.append("\"follow-up-control-structure\": \"empty\", ");
-				sb2.append("\"follow-up-associated-predicate\": \"empty\", ");
+				sb2.append("\"followUpControlStructure\": \"empty\", ");
+				sb2.append("\"followUpAssociatedPredicate\": \"empty\", ");
 			} else {
-				sb2.append("\"follow-up-control-structure\": \"" + postCC.type + "\", ");
-				sb2.append("\"follow-up-associated-predicate\": \"" + (postCC.guard == null ? "empty" : StringEscapeUtils.escapeJava(postCC.guard)) + "\", ");
+				sb2.append("\"followUpControlStructure\": \"" + postCC.type + "\", ");
+				sb2.append("\"followUpAssociatedPredicate\": \"" + (postCC.guard == null ? "empty" : StringEscapeUtils.escapeJava(postCC.guard)) + "\", ");
 			}
 			
-			if(prevCall == null) {
-				sb2.append("\"preceding-API-call\": \"empty\", ");				
-			} else {
-				sb2.append("\"preceding-API-call\": \"" + prevCall.name + "\", ");
+			sb2.append("\"precedingAPICall\":[");
+			if(!prevCalls.isEmpty()) {
+				String s = "";
+				for(APICall call : prevCalls) {
+					s += "\"" + call.name + "\", ";
+				}
+				sb2.append(s.substring(0, s.length() - 2));
 			}
 			
-			if(postCall == null) {
-				sb2.append("\"post-API-call\": \"empty\", ");				
-			} else {
-				sb2.append("\"post-API-call\": \"" + postCall.name + "\", ");
+			sb2.append("], ");
+			
+			sb2.append("\"postAPICall\": [");
+			if(!postCalls.isEmpty()) {
+				String s = "";
+				for(APICall call : postCalls) {
+					s += "\"" + call.name + "\", ";
+				}
+				sb2.append(s.substring(0, s.length() - 2));
 			}
+			
+			sb2.append("], ");
 			
 			sb2.append("\"url\": \"" + url + "\", ");
-			sb2.append("\"raw-code\": \"" + StringEscapeUtils.escapeJava(method) + "\"}");
+			sb2.append("\"rawCode\": \"" + StringEscapeUtils.escapeJava(method) + "\"}");
 			
 			FileUtils.appendStringToFile(sb2.toString() + System.lineSeparator(),  output);
+			
+			// print raw code
+			System.out.println("Raw code: ");
+			System.out.println(method);
+			System.out.println("Simplified code: ");
+			ArrayList<APICall> calls = new ArrayList<APICall>();
+			calls.addAll(prevCalls);
+			calls.add(theCall);
+			calls.addAll(postCalls);
+			if(types.containsKey(key)) {
+				System.out.println(synthesizeReableCode(calls, types.get(key)));
+			} else {
+				System.out.println(synthesizeReableCode(calls, new HashMap<String, String>()));
+			}
+		
 			id++;
 		}
 		
