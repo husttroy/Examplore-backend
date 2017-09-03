@@ -1,5 +1,6 @@
 package edu.cs.ucla.preprocess;
 
+import java.awt.Point;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -11,9 +12,9 @@ import java.util.HashSet;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
-import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
@@ -252,6 +253,7 @@ public class Preprocess {
 		if(new File(output).exists()) {
 			new File(output).delete();
 		}
+		FileUtils.appendStringToFile("[",  output);
 		
 		int id = 0;
 		int numOfUnreachableUrls = 0;
@@ -341,6 +343,7 @@ public class Preprocess {
 										// okay we need to fetch its predicate
 										// from the enclosed calls
 										prevCC.guard = theCall.normalizedGuard;
+										prevCC.orgnGuard = theCall.originalGuard;
 									}
 									break;
 								} else if (closeBraceCount > 0) {
@@ -371,12 +374,18 @@ public class Preprocess {
 															theCall.arguments,
 															theCall.ret);
 											postCC.guard = normalize;
+											postCC.orgnGuard = predicate;
 											break;
 										} else if (post2 instanceof ControlConstruct
 												&& ((ControlConstruct) post2).type
 														.equals("}")) {
 											break;
 										}
+									}
+									
+									if(postCC.guard == null) {
+										postCC.guard = "true";
+										postCC.orgnGuard = "true";
 									}
 								} else {
 									postCC = (ControlConstruct) post;
@@ -455,6 +464,22 @@ public class Preprocess {
 				}
 			});
 			
+			ArrayList<APICall> apiCalls = new ArrayList<APICall>();
+			apiCalls.addAll(prevCalls);
+			apiCalls.add(theCall);
+			apiCalls.addAll(postCalls);
+			
+			ArrayList<ControlConstruct> controlConstructs = new ArrayList<ControlConstruct>();
+			if(prevCC != null) {
+				controlConstructs.add(prevCC);
+			}
+			if(postCC != null && !postCC.type.equals("}")) {
+				controlConstructs.add(postCC);
+			}
+			
+			MatchCodeElements matcher = new MatchCodeElements(methodName, focal, apiCalls, controlConstructs);
+			cu.accept(matcher);
+			
 			for(String m : methods) {
 				if(m.contains(focal + "(")) {
 					method = m;
@@ -467,25 +492,159 @@ public class Preprocess {
 				continue;
 			}
 			
+			// debug the location finder
+//			int offset = code.indexOf(method);
+//			for(APICall call : apiCalls) {
+//				System.out.println(call);
+//				if(matcher.callRanges.containsKey(call)) {
+//					ArrayList<Point> ranges = matcher.callRanges.get(call);
+//					for(Point range : ranges) {
+//						System.out.println(method.substring(range.x - offset, range.y - offset));
+//					}
+//				} else {
+//					System.out.println("Not found");
+//				}
+//			}
+//			
+//			for(ControlConstruct cc : controlConstructs) {
+//				System.out.println(cc);
+//				if(matcher.controlRanges.containsKey(cc)) {
+//					ArrayList<Pair<Point, Point>> ranges = matcher.controlRanges.get(cc);
+//					for(Pair<Point, Point> range : ranges) {
+//						System.out.println(method.substring(range.getLeft().x - offset, range.getLeft().y - offset));
+//					}
+//				} else {
+//					System.out.println("Not found");
+//				}
+//			}
+			
+			// synthesize readable API calls and canonicalize variable names
+			ArrayList<APICall> calls = new ArrayList<APICall>();
+			calls.addAll(prevCalls);
+			calls.add(theCall);
+			calls.addAll(postCalls);
+			String synthesizedCode;
+			if(types.containsKey(key)) {
+				synthesizedCode = synthesizeReableCode(calls, types.get(key));
+			} else {
+				synthesizedCode = synthesizeReableCode(calls, new HashMap<String, String>());
+			}
+			
+			String[] arr = synthesizedCode.split(System.lineSeparator());
+			
+			int offset = code.indexOf(method);
+			// find where the focal API call is
+			int theCallStart = -1;
+			int theCallEnd = -1;
+			if(matcher.callRanges.containsKey(theCall)) {
+				ArrayList<Point> range = matcher.callRanges.get(theCall);
+				theCallStart = range.get(0).x;
+				theCallEnd = range.get(0).y;
+			} else {
+				// TODO: we are screwed up
+			}
+			
 			// construct the json string
 			StringBuilder sb2 = new StringBuilder();
 			sb2.append("{\"exampleID\": " + id + ", ");
 			if(prevCC == null) {
 				sb2.append("\"immediateControlStructure\": \"empty\", ");
 				sb2.append("\"associatedPredicate\": \"empty\", ");
+				sb2.append("\"immediateControlStructureExpressionStart\": -1, ");
+				sb2.append("\"immediateControlStructureExpressionEnd\": -1, ");
+				sb2.append("\"immediateControlStructureBlockStart\": -1, ");
+				sb2.append("\"immediateControlStructureBlockEnd\": -1, ");
 			} else {
 				sb2.append("\"immediateControlStructure\": \"" + prevCC.type + "\", ");
 				sb2.append("\"associatedPredicate\": \"" + (prevCC.guard == null ? "empty" : StringEscapeUtils.escapeJava(prevCC.guard)) + "\", ");
+				if(matcher.controlRanges.containsKey(prevCC)) {
+					ArrayList<Pair<Point,Point>> ranges = matcher.controlRanges.get(prevCC);
+					Pair<Point, Point> range = null;
+					int delta = Integer.MAX_VALUE; 
+					for(Pair<Point, Point> pair : ranges) {
+						int diff = theCallStart - pair.getLeft().x; 
+						if( diff < delta ) {
+							range = pair;
+							delta = diff;
+						}
+					}
+					sb2.append("\"immediateControlStructureExpressionStart\": " + (range.getLeft().x - offset) + ", ");
+					sb2.append("\"immediateControlStructureExpressionEnd\": " + (range.getLeft().y - offset) + ", ");
+					sb2.append("\"immediateControlStructureBlockStart\": " + (range.getRight().x - offset) + ", ");
+					sb2.append("\"immediateControlStructureBlockEnd\": " + (range.getRight().y - offset) + ", ");
+				} else {
+					int start = -1;
+					int end = -1;
+					if(prevCC.type.equals("TRY {")) {
+						// it is likely that the exception is thrown from the method declaration
+						start = method.indexOf("throws ");
+						if(start != -1) {
+							for(int i = start; i < method.length(); i++) {
+								if(method.charAt(i) == '{') {
+									end = i;
+									break;
+								}
+							}
+						}
+						
+					}
+					sb2.append("\"immediateControlStructureExpressionStart\": " + start + ", ");
+					sb2.append("\"immediateControlStructureExpressionEnd\": " + end + ", ");
+					sb2.append("\"immediateControlStructureBlockStart\": " + start + ", ");
+					sb2.append("\"immediateControlStructureBlockEnd\": " + end + ", ");
+				}
 			}
 			
 			sb2.append("\"focalAPI\": \"" + theCall.name + "\", ");
+			sb2.append("\"synthesizedFocalAPI\": \"" + StringEscapeUtils.escapeJava(arr[prevCalls.size()]) + "\", ");
+			sb2.append("\"focalAPIStart\": " + (theCallStart - offset) + ", ");
+			sb2.append("\"focalAPIEnd\": " + (theCallEnd - offset) + ", ");
 			
 			if(postCC == null) {
 				sb2.append("\"followUpControlStructure\": \"empty\", ");
 				sb2.append("\"followUpAssociatedPredicate\": \"empty\", ");
+				sb2.append("\"followUpControlStructureExpressionStart\": -1, ");
+				sb2.append("\"followUpControlStructureExpressionEnd\": -1, ");
+				sb2.append("\"followUpControlStructureBlockStart\": -1, ");
+				sb2.append("\"followUpControlStructureBlockEnd\": -1, ");
 			} else {
 				sb2.append("\"followUpControlStructure\": \"" + postCC.type + "\", ");
 				sb2.append("\"followUpAssociatedPredicate\": \"" + (postCC.guard == null ? "empty" : StringEscapeUtils.escapeJava(postCC.guard)) + "\", ");
+				if(matcher.controlRanges.containsKey(postCC)) {
+					ArrayList<Pair<Point,Point>> ranges = matcher.controlRanges.get(postCC);
+					Pair<Point, Point> range = null;
+					int delta = Integer.MAX_VALUE; 
+					for(Pair<Point, Point> pair : ranges) {
+						int diff = pair.getLeft().x - theCallStart; 
+						if( diff < delta ) {
+							range = pair;
+							delta = diff;
+						}
+					}
+					sb2.append("\"followUpControlStructureExpressionStart\": " + (range.getLeft().x - offset) + ", ");
+					sb2.append("\"followUpControlStructureExpressionEnd\": " + (range.getLeft().y - offset) + ", ");
+					sb2.append("\"followUpControlStructureBlockStart\": " + (range.getRight().x - offset) + ", ");
+					sb2.append("\"followUpControlStructureBlockEnd\": " + (range.getRight().y - offset) + ", ");
+				} else {
+					int start = -1;
+					int end = -1;
+					if(postCC.type.equals("CATCH")) {
+						// it is likely that the exception is thrown from the method declaration
+						start = method.indexOf("throws ");
+						if(start != -1) {
+							for(int i = start; i < method.length(); i++) {
+								if(method.charAt(i) == '{') {
+									end = i;
+									break;
+								}
+							}
+						}
+					}
+					sb2.append("\"followUpControlStructureExpressionStart\": " + start + ", ");
+					sb2.append("\"followUpControlStructureExpressionEnd\": " + end + ", ");
+					sb2.append("\"followUpControlStructureBlockStart\": " + start + ", ");
+					sb2.append("\"followUpControlStructureBlockEnd\": " + end + ", ");
+				}
 			}
 			
 			sb2.append("\"precedingAPICall\":[");
@@ -494,6 +653,91 @@ public class Preprocess {
 				for(APICall call : prevCalls) {
 					s += "\"" + call.name + "\", ";
 				}
+				sb2.append(s.substring(0, s.length() - 2));
+			}
+			
+			sb2.append("], ");
+						
+			sb2.append("\"synthesizedPrecedingAPICall\":[");
+			if(!prevCalls.isEmpty()) {
+				String s = "";
+				for(int i = 0; i < prevCalls.size(); i++) {
+					s += "\"" + StringEscapeUtils.escapeJava(arr[i]) + "\", ";
+				}
+				sb2.append(s.substring(0, s.length() - 2));
+			}
+			
+			sb2.append("], ");
+			
+			sb2.append("\"precedingAPICallStart\":[");
+			if(!prevCalls.isEmpty()) {
+				String s = "";
+				int next = theCallStart==-1 ? Integer.MAX_VALUE : theCallStart;
+				ArrayList<Integer> starts = new ArrayList<Integer>();
+				for(int i = prevCalls.size() - 1; i >= 0; i--) {
+					APICall prevCall = prevCalls.get(i);
+					if(matcher.callRanges.containsKey(prevCall)) {
+						ArrayList<Point> ranges = matcher.callRanges.get(prevCall);
+						Point range = null;
+						for(int j = ranges.size() - 1; j >= 0; j--) {
+							Point point = ranges.get(j);
+							if(point.x < next) {
+								range = point;
+								break;
+							}
+						}
+						if(range != null) {
+							starts.add(0, range.x - offset);
+							next = range.x;
+						} else {
+							starts.add(0, -1);
+						}
+					} else {
+						starts.add(0, -1);
+					}	
+				}
+				
+				for(int i = 0; i < prevCalls.size(); i++) {
+					s += starts.get(i) + ", ";
+				}
+				
+				sb2.append(s.substring(0, s.length() - 2));
+			}
+			
+			sb2.append("], ");
+			
+			sb2.append("\"precedingAPICallEnd\":[");
+			if(!prevCalls.isEmpty()) {
+				String s = "";
+				int next = theCallStart==-1 ? Integer.MAX_VALUE : theCallStart;
+				ArrayList<Integer> ends = new ArrayList<Integer>();
+				for(int i = prevCalls.size() - 1; i >= 0; i--) {
+					APICall prevCall = prevCalls.get(i);
+					if(matcher.callRanges.containsKey(prevCall)) {
+						ArrayList<Point> ranges = matcher.callRanges.get(prevCall);
+						Point range = null;
+						for(int j = ranges.size() - 1; j >= 0; j--) {
+							Point point = ranges.get(j);
+							if(point.x < next) {
+								range = point;
+								break;
+							}
+						}
+						if(range != null) {
+							ends.add(0, range.y - offset);
+							next = range.x;
+						} else {
+							ends.add(0, -1);
+						}
+					} else {
+						ends.add(0, -1);
+					}
+				}
+				
+				for(int i = 0; i < prevCalls.size(); i++) {
+					s += ends.get(i) + ", ";
+				}
+				
 				sb2.append(s.substring(0, s.length() - 2));
 			}
 			
@@ -510,29 +754,109 @@ public class Preprocess {
 			
 			sb2.append("], ");
 			
-			sb2.append("\"url\": \"" + url + "\", ");
-			sb2.append("\"rawCode\": \"" + StringEscapeUtils.escapeJava(method) + "\"}");
-			
-			FileUtils.appendStringToFile(sb2.toString() + System.lineSeparator(),  output);
-			
-			String logFile = "/media/troy/Disk2/Boa/apis/Map.get/synthesis.txt";
-			// print raw code
-			FileUtils.appendStringToFile("Raw code: \n", logFile);
-			FileUtils.appendStringToFile(method, logFile);
-			FileUtils.appendStringToFile("Simplified code: \n", logFile);
-			ArrayList<APICall> calls = new ArrayList<APICall>();
-			calls.addAll(prevCalls);
-			calls.add(theCall);
-			calls.addAll(postCalls);
-			if(types.containsKey(key)) {
-				FileUtils.appendStringToFile(synthesizeReableCode(calls, types.get(key)) + "\n", logFile);
-			} else {
-				FileUtils.appendStringToFile(synthesizeReableCode(calls, new HashMap<String, String>()) + "\n", logFile);
+			sb2.append("\"synthesizedPostAPICall\":[");
+			if(!postCalls.isEmpty()) {
+				String s = "";
+				for(int i = prevCalls.size() + 1; i < arr.length; i++) {
+					s += "\"" + StringEscapeUtils.escapeJava(arr[i]) + "\", ";
+				}
+				sb2.append(s.substring(0, s.length() - 2));
 			}
+			
+			sb2.append("], ");
+			
+			sb2.append("\"postAPICallStart\":[");
+			if(!postCalls.isEmpty()) {
+				String s = "";
+				int prev = theCallEnd;
+				for(int i = 0; i < postCalls.size(); i++) {
+					APICall postCall = postCalls.get(i);
+					if(matcher.callRanges.containsKey(postCall)) {
+						ArrayList<Point> ranges = matcher.callRanges.get(postCall);
+						Point range = null;
+						for(int j = 0; j < ranges.size(); j++) {
+							Point point = ranges.get(j);
+							if(point.y > prev) {
+								range = point;
+								break;
+							}
+						}
+						if(range != null) {
+							s += range.x - offset;
+							prev = range.y;
+						} else {
+							s += "-1";
+						}
+					} else {
+						s += "-1";
+					}
+
+					s += ", ";	
+				}
+				sb2.append(s.substring(0, s.length() - 2));
+			}
+			
+			sb2.append("], ");
+			
+			sb2.append("\"postAPICallEnd\":[");
+			if(!postCalls.isEmpty()) {
+				String s = "";
+				int prev = theCallEnd;
+				for(int i = 0; i < postCalls.size(); i++) {
+					APICall postCall = postCalls.get(i);
+					if(matcher.callRanges.containsKey(postCall)) {
+						ArrayList<Point> ranges = matcher.callRanges.get(postCall);
+						Point range = null;
+						for(int j = 0; j < ranges.size(); j++) {
+							Point point = ranges.get(j);
+							if(point.y > prev) {
+								range = point;
+								break;
+							}
+						}
+						if(range != null) {
+							s += range.y - offset;
+							prev = range.y;
+						} else {
+							s += "-1";
+						}
+					} else {
+						s += "-1";
+					}
+
+					s += ", ";	
+				}
+				sb2.append(s.substring(0, s.length() - 2));
+			}
+			
+			sb2.append("], ");
+			
+			sb2.append("\"url\": \"" + url + "\", ");
+			
+			sb2.append("\"synthesizedCode\": \"" + StringEscapeUtils.escapeJava(synthesizedCode) + "\", ");
+			sb2.append("\"rawCode\": \"" + StringEscapeUtils.escapeJava(method) + "\"}");
+		
+			FileUtils.appendStringToFile(sb2.toString() + "," + System.lineSeparator(),  output);
+			
+//			String logFile = "/media/troy/Disk2/Boa/apis/Map.get/synthesis.txt";
+//			// print raw code
+//			FileUtils.appendStringToFile("Raw code: \n", logFile);
+//			FileUtils.appendStringToFile(method, logFile);
+//			FileUtils.appendStringToFile("Simplified code: \n", logFile);
+//			ArrayList<APICall> calls = new ArrayList<APICall>();
+//			calls.addAll(prevCalls);
+//			calls.add(theCall);
+//			calls.addAll(postCalls);
+//			if(types.containsKey(key)) {
+//				FileUtils.appendStringToFile(synthesizeReableCode(calls, types.get(key)) + "\n", logFile);
+//			} else {
+//				FileUtils.appendStringToFile(synthesizeReableCode(calls, new HashMap<String, String>()) + "\n", logFile);
+//			}
 		
 			id++;
 		}
 		
+		FileUtils.appendStringToFile("]",  output);
 		// log the number of unreachable urls
 		System.out.println(numOfUnreachableUrls);
 	}

@@ -10,6 +10,9 @@ public class APICall implements Item {
 	public String ret; // null if does not have return value
 	public ArrayList<String> arguments; // empty if does not have arguments
 	
+	public int startIndex = -1;
+	public int endIndex = -1;
+	
 	public APICall(String name, String originalGuard, String normalizedGuard, String receiver, ArrayList<String> args, String retVal) {
 		this.name = name;
 		this.originalGuard = originalGuard;
@@ -21,7 +24,17 @@ public class APICall implements Item {
 	
 	@Override
 	public String toString() {
-		return name + "@" + normalizedGuard;
+		String apiName = name.substring(0, name.indexOf('(')) + "(";
+		if(!arguments.isEmpty()) {
+			for(String arg : arguments) {
+				apiName += arg + ", ";
+			}
+			apiName = apiName.substring(0, apiName.length() - 2);
+		}
+		
+		apiName += ")";
+		
+		return apiName + "@" + normalizedGuard;
 	}
 	
 	@Override
@@ -29,6 +42,7 @@ public class APICall implements Item {
 		int hash = 31;
 		hash += 37 * this.name.hashCode();
 		hash += 43 * this.normalizedGuard.hashCode();
+		hash += 51 * this.arguments.hashCode();
 		return hash;
 	}
 	
@@ -36,7 +50,8 @@ public class APICall implements Item {
 	public boolean equals(Object obj) {
 		if(obj instanceof APICall) {
 			APICall call = (APICall)obj;
-			return this.name.equals(call.name) && this.normalizedGuard.equals(call.normalizedGuard);
+			return this.name.equals(call.name) && this.normalizedGuard.equals(call.normalizedGuard)
+					&& this.arguments.equals(call.arguments);
 		} else {
 			return false;
 		}
