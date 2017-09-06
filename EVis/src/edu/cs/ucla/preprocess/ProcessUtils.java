@@ -341,7 +341,7 @@ public class ProcessUtils {
 						// escape quote, not the end of the quote
 					}
 				} else if(cur == '"' && !inSingleQuote && !inDoubleQuote) {
-					// double quote starts
+					// double q103uote starts
 					inDoubleQuote = true;
 				} else if (cur == '\'' && i > 0 && chars[i-1] == '\\') {
 					// count the number of backslashes
@@ -907,6 +907,8 @@ public class ProcessUtils {
 			} else {
 				c = SAT.stripUnbalancedParentheses(c);
 
+				if(c.isEmpty()) continue;
+				
 				boolean flag = false;
 				for (String var : vars) {
 					if (containsVar(var, c, 0)) {
@@ -1386,5 +1388,10 @@ public class ProcessUtils {
 			// keep looking forward
 			return replaceVar(var, predicate, behind, substitute);
 		}
+	}
+	
+	public static void main(String[] args) {
+		String m = "  /**\n   * Process the blog entries\n   *\n   * @param httpServletRequest Request\n   * @param httpServletResponse Response\n   * @param user {@link org.blojsom.blog.BlogUser} instance\n   * @param context Context\n   * @param entries Blog entries retrieved for the particular request\n   * @return Modified set of blog entries\n   * @throws org.blojsom.plugin.BlojsomPluginException If there is an error processing the blog\n   *     entries\n   */\n  public org.blojsom.blog.BlogEntry[] process(\n      HttpServletRequest httpServletRequest,\n      HttpServletResponse httpServletResponse,\n      BlogUser user,\n      Map context,\n      org.blojsom.blog.BlogEntry[] entries)\n      throws org.blojsom.plugin.BlojsomPluginException {\n    if (!_emoticonsMap.containsKey(user.getId())) {\n      return entries;\n    }\n\n    String blogBaseUrl = user.getBlog().getBlogBaseURL();\n    Map emoticonsForUser = (Map) _emoticonsMap.get(user.getId());\n    for (int i = 0; i < entries.length; i++) {\n      BlogEntry entry = entries[i];\n      String updatedDescription = entry.getDescription();\n      updatedDescription =\n          replaceEmoticon(emoticonsForUser, updatedDescription, HAPPY, HAPPY_PARAM, blogBaseUrl);\n      updatedDescription =\n          replaceEmoticon(emoticonsForUser, updatedDescription, SAD, SAD_PARAM, blogBaseUrl);\n      updatedDescription =\n          replaceEmoticon(emoticonsForUser, updatedDescription, GRIN, GRIN_PARAM, blogBaseUrl);\n      updatedDescription =\n          replaceEmoticon(emoticonsForUser, updatedDescription, LOVE, LOVE_PARAM, blogBaseUrl);\n      updatedDescription =\n          replaceEmoticon(\n              emoticonsForUser, updatedDescription, MISCHIEF, MISCHIEF_PARAM, blogBaseUrl);\n      updatedDescription =\n          replaceEmoticon(emoticonsForUser, updatedDescription, COOL, COOL_PARAM, blogBaseUrl);\n      updatedDescription =\n          replaceEmoticon(emoticonsForUser, updatedDescription, DEVIL, DEVIL_PARAM, blogBaseUrl);\n      updatedDescription =\n          replaceEmoticon(emoticonsForUser, updatedDescription, SILLY, SILLY_PARAM, blogBaseUrl);\n      updatedDescription =\n          replaceEmoticon(emoticonsForUser, updatedDescription, ANGRY, ANGRY_PARAM, blogBaseUrl);\n      updatedDescription =\n          replaceEmoticon(emoticonsForUser, updatedDescription, LAUGH, LAUGH_PARAM, blogBaseUrl);\n      updatedDescription =\n          replaceEmoticon(emoticonsForUser, updatedDescription, WINK, WINK_PARAM, blogBaseUrl);\n      updatedDescription =\n          replaceEmoticon(emoticonsForUser, updatedDescription, BLUSH, BLUSH_PARAM, blogBaseUrl);\n      updatedDescription =\n          replaceEmoticon(emoticonsForUser, updatedDescription, CRY, CRY_PARAM, blogBaseUrl);\n      updatedDescription =\n          replaceEmoticon(\n              emoticonsForUser, updatedDescription, CONFUSED, CONFUSED_PARAM, blogBaseUrl);\n      updatedDescription =\n          replaceEmoticon(\n              emoticonsForUser, updatedDescription, SHOCKED, SHOCKED_PARAM, blogBaseUrl);\n      updatedDescription =\n          replaceEmoticon(emoticonsForUser, updatedDescription, PLAIN, PLAIN_PARAM, blogBaseUrl);\n      entry.setDescription(updatedDescription);\n    }\n    return entries;\n  }\n";
+		System.out.println(m.substring(669, 718));
 	}
 }
