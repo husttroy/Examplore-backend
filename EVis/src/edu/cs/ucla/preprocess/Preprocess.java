@@ -592,6 +592,18 @@ public class Preprocess {
 			if (!inits.isEmpty()) {
 				ArrayList<Point> ranges = getAPICallRangesBeforeFocal(theCallStart, inits, matcher.callRanges, offset);
 				
+				// check for unmatched API calls caused by source code inconsistency between Boa and GitHub
+				boolean inValid = false;
+				for(Point range : ranges) {
+					if(range.x == -1 || range.y == -1) {
+						inValid = true;
+						break;
+					}
+				}
+				if(inValid) {
+					continue;
+				}
+				
 				sb2.append("\"initializationStart\":[");
 				String starts = "";
 				for (int i = 0; i < inits.size(); i++) {
@@ -723,6 +735,18 @@ public class Preprocess {
 				if (!exceptionCalls.isEmpty()) {
 					ArrayList<Point> ranges = getAPICallRangesAfterFocal(theCallEnd, exceptionCalls, matcher.callRanges, offset);
 					
+					// check for unmatched API calls caused by source code inconsistency between Boa and GitHub
+					boolean inValid = false;
+					for(Point range : ranges) {
+						if(range.x == -1 || range.y == -1) {
+							inValid = true;
+							break;
+						}
+					}
+					if(inValid) {
+						continue;
+					}
+					
 					sb2.append("\"exceptionHandlingCallStart\":[");
 					String starts = "";
 					for (int i = 0; i < exceptionCalls.size(); i++) {
@@ -775,6 +799,18 @@ public class Preprocess {
 			
 			if (!configs.isEmpty()) {
 				ArrayList<Point> ranges = getAPICallRangesBeforeFocal(theCallStart, configs, matcher.callRanges, offset);
+				
+				// check for unmatched API calls caused by source code inconsistency between Boa and GitHub
+				boolean inValid = false;
+				for(Point range : ranges) {
+					if(range.x == -1 || range.y == -1) {
+						inValid = true;
+						break;
+					}
+				}
+				if(inValid) {
+					continue;
+				}
 				
 				sb2.append("\"configurationStart\":[");
 				String starts = "";
@@ -880,6 +916,18 @@ public class Preprocess {
 			if (!uses.isEmpty()) {
 				ArrayList<Point> ranges = getAPICallRangesAfterFocal(theCallEnd, uses, matcher.callRanges, offset);
 				
+				// check for unmatched API calls caused by source code inconsistency between Boa and GitHub
+				boolean inValid = false;
+				for(Point range : ranges) {
+					if(range.x == -1 || range.y == -1) {
+						inValid = true;
+						break;
+					}
+				}
+				if(inValid) {
+					continue;
+				}
+				
 				sb2.append("\"useStart\":[");
 				String starts = "";
 				for (int i = 0; i < uses.size(); i++) {
@@ -947,6 +995,18 @@ public class Preprocess {
 				
 				if (!cleanUpCalls.isEmpty()) {
 					ArrayList<Point> ranges = getAPICallRangesAfterFocal(theCallEnd, cleanUpCalls, matcher.callRanges, offset);
+					
+					// check for unmatched API calls caused by source code inconsistency between Boa and GitHub
+					boolean inValid = false;
+					for(Point range : ranges) {
+						if(range.x == -1 || range.y == -1) {
+							inValid = true;
+							break;
+						}
+					}
+					if(inValid) {
+						continue;
+					}
 					
 					sb2.append("\"cleanUpCallStart\":[");
 					String starts = "";
