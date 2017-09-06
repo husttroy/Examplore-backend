@@ -10,13 +10,14 @@ import org.json.JSONObject;
 
 public class JsonReader {
 	public static void main(String[] args) {
-		String jsonPath = "/media/troy/Disk2/Boa/apis/Map.get/evis.txt";
+		String jsonPath = "/media/troy/Disk2/Boa/apis/Map.get/evis_550.txt";
 		try(BufferedReader br = new BufferedReader(new FileReader(new File(jsonPath)))) {
 			String line;
 			while ((line = br.readLine()) != null) {
-				JSONObject obj = new JSONObject(line);
-				String n = obj.getString("associated-predicate");
-				int a = obj.getInt("example_id");
+				if(line.startsWith("[")) line = line.substring(1);
+				JSONObject obj = new JSONObject(line.substring(0, line.length() - 1));
+				String n = obj.getString("url");
+				int a = obj.getInt("exampleID");
 				System.out.println(a + " " + n);
 			}			
 		} catch (JSONException e) {

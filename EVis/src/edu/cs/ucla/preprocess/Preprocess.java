@@ -32,6 +32,14 @@ public class Preprocess {
 	String focal;
 	HashMap<String, HashMap<String, String>> types;
 	HashMap<String, ArrayList<Item>> seqs;
+	
+	// supplement the names and types of the receiver, argument(s), and return value of the focal API here
+	static String argName;
+	static String argType;
+	static String rcvName;
+	static String rcvType;
+	static String retName;
+	static String retType;
 
 	public Preprocess(String input, String api) {
 		this.path = input;
@@ -366,7 +374,7 @@ public class Preprocess {
 								if (call.receiver != null
 										&& call.receiver
 												.equals(theCall.receiver)) {
-									// this call is invoked on the same receiver
+									// this carll is invoked on the same receiver
 									// object as the focal API call
 									configs.add(0,call);
 								}
@@ -513,7 +521,7 @@ public class Preprocess {
 //								range.y - offset));
 //					}
 //				} else {
-//					System.out.println("Not found");
+//					System.out.println("Not forund");
 //				}
 //			}
 //
@@ -567,11 +575,12 @@ public class Preprocess {
 			if (!inits.isEmpty()) {
 				String s = "";
 				for (APICall call : inits) {
-					// TODO: for now we hardcode this, need to generalize this later
+					// synthesize the initialization statement with the provided names and types
+					// of receiver and arguments for better readability
 					if(call.ret.equals(theCall.receiver)) {
-						s += "\"Map map = " + call.name + "\", "; 
+						s += "\"" + rcvType + " " + rcvName + " = " + call.name + "\", "; 
 					} else {
-						s += "\"Object key = " + call.name + "\", ";  
+						s += "\"" + argType + " " + argName + " = " + call.name + "\", ";  
 					}
 				}
 				sb2.append(s.substring(0, s.length() - 2));
@@ -755,7 +764,8 @@ public class Preprocess {
 			if (!configs.isEmpty()) {
 				String s = "";
 				for (APICall call : configs) {
-					s += "\"map." + call.name + "\", "; 
+					// augment with the provided receiver object name
+					s += "\"" + rcvName + "." + call.name + "\", "; 
 				}
 				sb2.append(s.substring(0, s.length() - 2));
 			}
@@ -790,8 +800,10 @@ public class Preprocess {
 			// dump the guard condition block
 			if(matcher.guardBlock != null) {
 				String guard = matcher.guardBlock.guard;
-				guard = guard.replaceAll("rcv", "map");
-				guard = guard.replaceAll("arg0", "key");
+				// replace rcv and arg0 with supplemented names
+				// TODO: handle multiple arguments
+				guard = guard.replaceAll("rcv", rcvName);
+				guard = guard.replaceAll("arg0", argName);
 				sb2.append("\"guardCondition\": \"" + StringEscapeUtils.escapeJava(guard) + "\", ");
 				sb2.append("\"guardType\": \"" + matcher.guardBlock.type + "\", ");
 				sb2.append("\"guardExpressionStart\": " + (matcher.guardBlock.startIndex1 - offset) + ", ");
@@ -808,17 +820,18 @@ public class Preprocess {
 			}
 			
 			// dump the focal API call
-			// TODO: for now, we hardcode the focal API, but we need to generalize this later
-			sb2.append("\"focalAPI\": \"value = map.get(key)\", ");
+			// TODO: handle multiple arguments
+			sb2.append("\"focalAPI\": \"" + retName + " = " + rcvName + "." + focal + "(" + argName + ")\", ");
 			sb2.append("\"focalAPIStart\": " + (theCallStart - offset) + ", ");
 			sb2.append("\"focalAPIEnd\": " + (theCallEnd - offset) + ", ");
 			
 			// dump the follow-up check on the return value of the focal API
 			if(matcher.followUpCheck != null) {
 				String check = matcher.followUpCheck.guard;
-				check = check.replaceAll("rcv", "map");
-				check = check.replaceAll("arg0", "key");
-				check = check.replaceAll("ret", "value");
+				// TODO : handle multiple arguments
+				check = check.replaceAll("rcv", rcvName);
+				check = check.replaceAll("arg0", argName);
+				check = check.replaceAll("ret", retName);
 				
 				sb2.append("\"followUpCheck\": \"" + StringEscapeUtils.escapeJava(check) + "\", ");
 				sb2.append("\"checkType\": \"" + matcher.followUpCheck.type + "\", ");
@@ -840,17 +853,15 @@ public class Preprocess {
 			if (!uses.isEmpty()) {
 				String s = "";
 				for (APICall call : uses) {
-					// TODO: for now we hardcode this, need to generalize this later
 					if(call.receiver != null && call.receiver.equals(theCall.receiver)) {
 						// this call is invoked on the same receiver as the focal API
-						s += "\"map." + call.name + "\", "; 
+						s += "\"" + rcvName + "." + call.name + "\", "; 
 					} else {
 						// this call uses the return value of the API call as one of its arguments
 						int index = call.arguments.indexOf(theCall.ret);
 						String args = call.name.substring(call.name.indexOf('(')+1, call.name.indexOf(')'));
 						String[] argss = args.split(",");
-						// TODO: hardcode the name of the return value, generalize it later
-						argss[index] = "value";
+						argss[index] = retName;
 						String normalizedUseCall = call.name.substring(0, call.name.indexOf('(')) + "(";
 						for(String arg : argss) {
 							normalizedUseCall += arg + ",";
@@ -1744,12 +1755,19 @@ public class Preprocess {
 	}
 
 	public static void main(String[] args) {
-		String focal = "get";
-		String input = "/media/troy/Disk2/Boa/apis/Map.get";
+		Preprocess.argName = "id";
+		Preprocess.argType = "int";
+		Preprocess.rcvName = "activity";
+		Preprocess.rcvType = "Activity";
+		Preprocess.retName = "view";
+		Preprocess.retType = "View";
+		
+		String focal = "findViewById";
+		String input = "/media/troy/Disk2/Boa/apis/Activity.findViewById";
 		Preprocess pp = new Preprocess(input, focal);
 		pp.process();
 
-		String output = "/media/troy/Disk2/Boa/apis/Map.get/evis.txt";
+		String output = "/media/troy/Disk2/Boa/apis/Activity.findViewById/evis.txt";
 		pp.dumpToJsonNewSchema(output);
 	}
 }
