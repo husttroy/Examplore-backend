@@ -372,17 +372,19 @@ public class Preprocess {
 							if (prev instanceof APICall) {
 								APICall call = (APICall) prev;
 								if (call.receiver != null
-										&& call.receiver
-												.equals(theCall.receiver)) {
-									// this carll is invoked on the same receiver
+										&& (call.receiver
+												.equals(theCall.receiver) || theCall.arguments.contains(call.receiver))) {
+									// this call is invoked on the same receiver
 									// object as the focal API call
+									// or
+									/// this call is invoked on one of the arguments of the focal API call
 									configs.add(0,call);
 								}
 
 								if (theCall.arguments.contains(call.ret)
 										|| (theCall.receiver != null && theCall.receiver.equals(call.ret))) {
 									// this call's return value is either the
-									// argument or the receiver of the focal API
+									// arguments or the receiver of the focal API
 									// call
 									inits.add(0,call);
 								}
@@ -402,7 +404,14 @@ public class Preprocess {
 									uses.add(call);
 								} else if (call.arguments.contains(theCall.ret)) {
 									// this call uses the return value of the
+									// focal API call as its argument
+									uses.add(call);
+								} else if (call.receiver != null && call.receiver.equals(theCall.ret)) {
+									// this call is invoked on the return value of the
 									// focal API call
+									uses.add(call);
+								} else if (theCall.receiver != null && call.arguments.contains(theCall.receiver)) {
+									// this call uses the receiver of the focal API as its argument
 									uses.add(call);
 								}
 							}
@@ -416,10 +425,6 @@ public class Preprocess {
 			if (theCall == null) {
 				continue;
 			}
-			
-//			if(id == 11258) {
-//				System.out.println("Infinite Loop");
-//			}
 
 			// check whether it has exception handling
 			ControlConstruct tryBlock = null;
@@ -587,7 +592,6 @@ public class Preprocess {
 			}
 
 			sb2.append("], ");
-			
 			
 			if (!inits.isEmpty()) {
 				ArrayList<Point> ranges = getAPICallRangesBeforeFocal(theCallStart, inits, matcher.callRanges, offset);
@@ -788,8 +792,13 @@ public class Preprocess {
 			if (!configs.isEmpty()) {
 				String s = "";
 				for (APICall call : configs) {
-					// augment with the provided receiver object name
-					s += "\"" + rcvName + "." + call.name + "\", "; 
+					if(call.receiver != null && call.receiver.equals(theCall.receiver)) {
+						// augment with the provided receiver object name
+						s += "\"" + rcvName + "." + call.name + "\", ";
+					} else {
+						// augment with the provided argument name
+						s += "\"" + argName + "." + call.name + "\", ";
+					}
 				}
 				sb2.append(s.substring(0, s.length() - 2));
 			}
@@ -890,14 +899,30 @@ public class Preprocess {
 				String s = "";
 				for (APICall call : uses) {
 					if(call.receiver != null && call.receiver.equals(theCall.receiver)) {
-						// this call is invoked on the same receiver as the focal API
+						// this call is invoked on the same receiver as the focal API call
 						s += "\"" + rcvName + "." + call.name + "\", "; 
-					} else {
-						// this call uses the return value of the API call as one of its arguments
+					} else if (call.arguments.contains(theCall.ret)){
+						// this call uses the return value of the focal API call as one of its arguments
 						int index = call.arguments.indexOf(theCall.ret);
 						String args = call.name.substring(call.name.indexOf('(')+1, call.name.indexOf(')'));
 						String[] argss = args.split(",");
 						argss[index] = retName;
+						String normalizedUseCall = call.name.substring(0, call.name.indexOf('(')) + "(";
+						for(String arg : argss) {
+							normalizedUseCall += arg + ",";
+						}
+						normalizedUseCall = normalizedUseCall.substring(0, normalizedUseCall.length() - 1) + ")";
+							
+						s += "\"" + normalizedUseCall + "\", ";  
+					} else if (call.receiver != null && call.receiver.equals(theCall.ret)){
+						// this call is invoked on the return value of the focal API call 
+						s += "\"" + retName + "." + call.name + "\", ";
+					} else {
+						// this call uses the receiver object of the focal API call as one of its arguments
+						int index = call.arguments.indexOf(theCall.receiver);
+						String args = call.name.substring(call.name.indexOf('(')+1, call.name.indexOf(')'));
+						String[] argss = args.split(",");
+						argss[index] = rcvName;
 						String normalizedUseCall = call.name.substring(0, call.name.indexOf('(')) + "(";
 						for(String arg : argss) {
 							normalizedUseCall += arg + ",";

@@ -682,7 +682,7 @@ public class ProcessUtils {
 					apiCall = new APICall(apiName + "()", predicate, condition, rcv, new ArrayList<String>(), retVal); 
 				} else {
 					// if there is no return value, use the call expression itself as a return value
-					apiCall = new APICall(apiName + "()", predicate, condition, rcv, new ArrayList<String>(), expr);
+					apiCall = new APICall(apiName + "()", predicate, condition, rcv, new ArrayList<String>(), (rcv==null?"":(rcv+"."))+apiName+"()");
 				}
 				 
 				items.add(apiCall);
@@ -822,6 +822,12 @@ public class ProcessUtils {
 					}
 				}
 				receiver = SAT.stripUnbalancedParentheses(receiver);
+				
+				if(receiver.contains(",") && !(receiver.contains("(") && receiver.contains(")"))) {
+					// I saw a receive like 'a,b' in an expression 'bar(a,b.foo())' when extracting the
+					// receiver of foo
+					receiver = receiver.substring(receiver.lastIndexOf(",") + 1);
+				}
 			}
 		}
 		return receiver;
