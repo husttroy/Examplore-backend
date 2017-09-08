@@ -32,8 +32,9 @@ public class Preprocess {
 	String focal;
 	HashMap<String, HashMap<String, String>> types;
 	HashMap<String, ArrayList<Item>> seqs;
-	
-	// supplement the names and types of the receiver, argument(s), and return value of the focal API here
+
+	// supplement the names and types of the receiver, argument(s), and return
+	// value of the focal API here
 	static String argName;
 	static String argType;
 	static String rcvName;
@@ -373,20 +374,24 @@ public class Preprocess {
 								APICall call = (APICall) prev;
 								if (call.receiver != null
 										&& (call.receiver
-												.equals(theCall.receiver) || theCall.arguments.contains(call.receiver))) {
+												.equals(theCall.receiver) || theCall.arguments
+												.contains(call.receiver))) {
 									// this call is invoked on the same receiver
 									// object as the focal API call
 									// or
-									/// this call is invoked on one of the arguments of the focal API call
-									configs.add(0,call);
+									// / this call is invoked on one of the
+									// arguments of the focal API call
+									configs.add(0, call);
 								}
 
 								if (theCall.arguments.contains(call.ret)
-										|| (theCall.receiver != null && theCall.receiver.equals(call.ret))) {
+										|| (theCall.receiver != null && theCall.receiver
+												.equals(call.ret))) {
 									// this call's return value is either the
-									// arguments or the receiver of the focal API
+									// arguments or the receiver of the focal
+									// API
 									// call
-									inits.add(0,call);
+									inits.add(0, call);
 								}
 							}
 						}
@@ -406,12 +411,17 @@ public class Preprocess {
 									// this call uses the return value of the
 									// focal API call as its argument
 									uses.add(call);
-								} else if (call.receiver != null && call.receiver.equals(theCall.ret)) {
-									// this call is invoked on the return value of the
+								} else if (call.receiver != null
+										&& call.receiver.equals(theCall.ret)) {
+									// this call is invoked on the return value
+									// of the
 									// focal API call
 									uses.add(call);
-								} else if (theCall.receiver != null && call.arguments.contains(theCall.receiver)) {
-									// this call uses the receiver of the focal API as its argument
+								} else if (theCall.receiver != null
+										&& call.arguments
+												.contains(theCall.receiver)) {
+									// this call uses the receiver of the focal
+									// API as its argument
 									uses.add(call);
 								}
 							}
@@ -516,49 +526,52 @@ public class Preprocess {
 			cu.accept(matcher);
 
 			// debug the location finder
-//			int offset = code.indexOf(method);
-//			for (APICall call : apiCalls) {
-//				System.out.println(call);
-//				if (matcher.callRanges.containsKey(call)) {
-//					ArrayList<Point> ranges = matcher.callRanges.get(call);
-//					for (Point range : ranges) {
-//						System.out.println(method.substring(range.x - offset,
-//								range.y - offset));
-//					}
-//				} else {
-//					System.out.println("Not forund");
-//				}
-//			}
-//
-//			for (ControlConstruct cc : controlConstructs) {
-//				System.out.println(cc);
-//				if (matcher.controlRanges.containsKey(cc)) {
-//					ArrayList<Pair<Point, Point>> ranges = matcher.controlRanges
-//							.get(cc);
-//					for (Pair<Point, Point> range : ranges) {
-//						System.out.println(method.substring(range.getLeft().x
-//								- offset, range.getLeft().y - offset));
-//					}
-//				} else {
-//					System.out.println("Not found");
-//				}
-//			}
-//			
-//			if(!theCall.normalizedGuard.equals("true")) {
-//				if(matcher.guardBlock != null) {
-//					System.out.println("Guard Block---" + method.substring(matcher.guardBlock.startIndex1
-//							- offset, matcher.guardBlock.endIndex1 - offset));
-//				} else {
-//					System.out.println("Guard not found---" + theCall.normalizedGuard);
-//				}
-//			} 
-//			
-//			
-//			if(matcher.followUpCheck != null) {
-//				System.out.println("Value Check Block---" + method.substring(matcher.followUpCheck.startIndex1
-//						- offset, matcher.followUpCheck.endIndex1 - offset));
-//			}
-			
+			// int offset = code.indexOf(method);
+			// for (APICall call : apiCalls) {
+			// System.out.println(call);
+			// if (matcher.callRanges.containsKey(call)) {
+			// ArrayList<Point> ranges = matcher.callRanges.get(call);
+			// for (Point range : ranges) {
+			// System.out.println(method.substring(range.x - offset,
+			// range.y - offset));
+			// }
+			// } else {
+			// System.out.println("Not forund");
+			// }
+			// }
+			//
+			// for (ControlConstruct cc : controlConstructs) {
+			// System.out.println(cc);
+			// if (matcher.controlRanges.containsKey(cc)) {
+			// ArrayList<Pair<Point, Point>> ranges = matcher.controlRanges
+			// .get(cc);
+			// for (Pair<Point, Point> range : ranges) {
+			// System.out.println(method.substring(range.getLeft().x
+			// - offset, range.getLeft().y - offset));
+			// }
+			// } else {
+			// System.out.println("Not found");
+			// }
+			// }
+			//
+			// if(!theCall.normalizedGuard.equals("true")) {
+			// if(matcher.guardBlock != null) {
+			// System.out.println("Guard Block---" +
+			// method.substring(matcher.guardBlock.startIndex1
+			// - offset, matcher.guardBlock.endIndex1 - offset));
+			// } else {
+			// System.out.println("Guard not found---" +
+			// theCall.normalizedGuard);
+			// }
+			// }
+			//
+			//
+			// if(matcher.followUpCheck != null) {
+			// System.out.println("Value Check Block---" +
+			// method.substring(matcher.followUpCheck.startIndex1
+			// - offset, matcher.followUpCheck.endIndex1 - offset));
+			// }
+
 			int offset = code.indexOf(method);
 			// find where the focal API call is
 			int theCallStart = -1;
@@ -571,43 +584,48 @@ public class Preprocess {
 				// TODO: cannot match the focal API, discard this example
 				continue;
 			}
-			
+
 			StringBuilder sb2 = new StringBuilder();
 			sb2.append("{\"exampleID\": " + id + ", ");
-			
+
 			// dump the initialization API calls
 			sb2.append("\"initialization\":[");
 			if (!inits.isEmpty()) {
 				String s = "";
 				for (APICall call : inits) {
-					// synthesize the initialization statement with the provided names and types
+					// synthesize the initialization statement with the provided
+					// names and types
 					// of receiver and arguments for better readability
-					if(call.ret.equals(theCall.receiver)) {
-						s += "\"" + rcvType + " " + rcvName + " = " + call.name + "\", "; 
+					if (call.ret.equals(theCall.receiver)) {
+						s += "\"" + rcvType + " " + rcvName + " = " + call.name
+								+ "\", ";
 					} else {
-						s += "\"" + argType + " " + argName + " = " + call.name + "\", ";  
+						s += "\"" + argType + " " + argName + " = " + call.name
+								+ "\", ";
 					}
 				}
 				sb2.append(s.substring(0, s.length() - 2));
 			}
 
 			sb2.append("], ");
-			
+
 			if (!inits.isEmpty()) {
-				ArrayList<Point> ranges = getAPICallRangesBeforeFocal(theCallStart, inits, matcher.callRanges, offset);
-				
-				// check for unmatched API calls caused by source code inconsistency between Boa and GitHub
+				ArrayList<Point> ranges = getAPICallRangesBeforeFocal(
+						theCallStart, inits, matcher.callRanges, offset);
+
+				// check for unmatched API calls caused by source code
+				// inconsistency between Boa and GitHub
 				boolean inValid = false;
-				for(Point range : ranges) {
-					if(range.x == -1 || range.y == -1) {
+				for (Point range : ranges) {
+					if (range.x == -1 || range.y == -1) {
 						inValid = true;
 						break;
 					}
 				}
-				if(inValid) {
+				if (inValid) {
 					continue;
 				}
-				
+
 				sb2.append("\"initializationStart\":[");
 				String starts = "";
 				for (int i = 0; i < inits.size(); i++) {
@@ -615,7 +633,7 @@ public class Preprocess {
 				}
 				sb2.append(starts.substring(0, starts.length() - 2));
 				sb2.append("], ");
-				
+
 				sb2.append("\"initializationEnd\":[");
 				String ends = "";
 				for (int i = 0; i < inits.size(); i++) {
@@ -628,12 +646,67 @@ public class Preprocess {
 				sb2.append("\"initializationStart\":[], ");
 				sb2.append("\"initializationEnd\":[], ");
 			}
-			
+
 			// dump the json key-value pairs related to exception handling
-			if(tryBlock != null && catchBlock != null) {
+			// Update on 09/07/2017: we decide not to render the thrown
+			// exceptions that are
+			// declared in a method header, but rather focus on these exceptions
+			// that are handled
+			// explicitly and locally in a try-catch block
+			int tryExpressionStart = -1;
+			int tryExpressionEnd = -1;
+			int tryBlockStart = -1;
+			int tryBlockEnd = -1;
+			int catchExpressionStart = -1;
+			int catchExpressionEnd = -1;
+			int catchBlockStart = -1;
+			int catchBlockEnd = -1;
+			if (tryBlock != null && catchBlock != null
+					&& matcher.controlRanges.containsKey(tryBlock)
+					&& matcher.controlRanges.containsKey(catchBlock)) {
+				ArrayList<Pair<Point, Point>> ranges1 = matcher.controlRanges
+						.get(tryBlock);
+				Pair<Point, Point> range1 = null;
+				int delta1 = Integer.MAX_VALUE;
+				for (Pair<Point, Point> pair : ranges1) {
+					int diff = theCallStart - pair.getLeft().x;
+					if (diff < delta1 && diff >= 0) {
+						range1 = pair;
+						delta1 = diff;
+					}
+				}
+
+				if (range1 != null) {
+					tryExpressionStart = range1.getLeft().x - offset;
+					tryExpressionEnd = range1.getLeft().y - offset;
+					tryBlockStart = range1.getRight().x - offset;
+					tryBlockEnd = range1.getRight().y - offset;
+				}
+
+				ArrayList<Pair<Point, Point>> ranges2 = matcher.controlRanges
+						.get(catchBlock);
+				Pair<Point, Point> range2 = null;
+				int delta2 = Integer.MAX_VALUE;
+				for (Pair<Point, Point> pair : ranges2) {
+					int diff = pair.getLeft().x - theCallStart;
+					if (diff < delta2 && diff >= 0) {
+						range2 = pair;
+						delta2 = diff;
+					}
+				}
+
+				if (range2 != null) {
+					catchExpressionStart = range2.getLeft().x - offset;
+					catchExpressionEnd = range2.getLeft().y - offset;
+					catchBlockStart = range2.getRight().x - offset;
+					catchBlockEnd = range2.getRight().y - offset;
+				}
+			}
+
+			if (tryExpressionStart != -1 && catchExpressionStart != -1) {
 				sb2.append("\"hasTryCatch\": 1, ");
 				sb2.append("\"exceptionType\": \"" + catchBlock.guard + "\", ");
-				
+
 				sb2.append("\"exceptionHandlingCall\": [");
 				if (!exceptionCalls.isEmpty()) {
 					String s = "";
@@ -643,114 +716,38 @@ public class Preprocess {
 					sb2.append(s.substring(0, s.length() - 2));
 				}
 				sb2.append("], ");
-				
-				int tryExpressionStart = -1;
-				int tryExpressionEnd = -1;
-				int tryBlockStart = -1;
-				int tryBlockEnd = -1;
-				if (matcher.controlRanges.containsKey(tryBlock)) {
-					ArrayList<Pair<Point, Point>> ranges = matcher.controlRanges
-							.get(tryBlock);
-					Pair<Point, Point> range = null;
-					int delta = Integer.MAX_VALUE;
-					for (Pair<Point, Point> pair : ranges) {
-						int diff = theCallStart - pair.getLeft().x;
-						if (diff < delta && diff >= 0) {
-							range = pair;
-							delta = diff;
-						}
-					}
 
-					if (range != null) {
-						tryExpressionStart = range.getLeft().x - offset;
-						tryExpressionEnd = range.getLeft().y - offset;
-						tryBlockStart = range.getRight().x - offset;
-						tryBlockEnd = range.getRight().y - offset;
-					}
-				} else {
-					// it is likely that the exception is thrown from the
-					// method declaration
-					int start = method.indexOf(" throws ");
-					int end = -1;
-					if (start != -1) {
-						for (int i = start; i < method.length(); i++) {
-							if (method.charAt(i) == '{') {
-								end = i;
-								break;
-							}
-						}
-					}
-					tryExpressionStart = start + 1;
-					tryExpressionEnd = end;
-					tryBlockStart = start + 1;
-					tryBlockEnd = end;
-				}
-				sb2.append("\"tryExpressionStart\": " + tryExpressionStart + ", ");
+				sb2.append("\"tryExpressionStart\": " + tryExpressionStart
+						+ ", ");
 				sb2.append("\"tryExpressionEnd\": " + tryExpressionEnd + ", ");
 				sb2.append("\"tryBlockStart\": " + tryBlockStart + ", ");
 				sb2.append("\"tryBlockEnd\": " + tryBlockEnd + ", ");
-				
-				int catchExpressionStart = -1;
-				int catchExpressionEnd = -1;
-				int catchBlockStart = -1;
-				int catchBlockEnd = -1;
-				if (matcher.controlRanges.containsKey(catchBlock)) {
-					ArrayList<Pair<Point, Point>> ranges = matcher.controlRanges
-							.get(catchBlock);
-					Pair<Point, Point> range = null;
-					int delta = Integer.MAX_VALUE;
-					for (Pair<Point, Point> pair : ranges) {
-						int diff = pair.getLeft().x - theCallStart;
-						if (diff < delta && diff >= 0) {
-							range = pair;
-							delta = diff;
-						}
-					}
 
-					if (range != null) {
-						catchExpressionStart = range.getLeft().x - offset;
-						catchExpressionEnd = range.getLeft().y - offset;
-						catchBlockStart = range.getRight().x - offset;
-						catchBlockEnd = range.getRight().y - offset;
-					}
-				} else {
-					// it is likely that the exception is thrown from the
-					// method declaration
-					int start = method.indexOf(" throws ");
-					int end = -1;
-					if (start != -1) {
-						for (int i = start; i < method.length(); i++) {
-							if (method.charAt(i) == '{') {
-								end = i;
-								break;
-							}
-						}
-					}
-					catchExpressionStart = start + 1;
-					catchExpressionEnd = end;
-					catchBlockStart = start + 1;
-					catchBlockEnd = end;
-				}
-				sb2.append("\"catchExpressionStart\": " + catchExpressionStart + ", ");
-				sb2.append("\"catchExpressionEnd\": " + catchExpressionEnd + ", ");
+				sb2.append("\"catchExpressionStart\": " + catchExpressionStart
+						+ ", ");
+				sb2.append("\"catchExpressionEnd\": " + catchExpressionEnd
+						+ ", ");
 				sb2.append("\"catchBlockStart\": " + catchBlockStart + ", ");
 				sb2.append("\"catchBlockEnd\": " + catchBlockEnd + ", ");
-				
+
 				if (!exceptionCalls.isEmpty()) {
-					ArrayList<Point> ranges = getAPICallRangesAfterFocal(theCallEnd, exceptionCalls, matcher.callRanges, offset);
-					
-					// check for unmatched API calls caused by source code inconsistency between Boa and GitHub
+					ArrayList<Point> ranges = getAPICallRangesAfterFocal(
+							theCallEnd, exceptionCalls, matcher.callRanges,
+							offset);
+
+					// check for unmatched API calls caused by source code
+					// inconsistency between Boa and GitHub
 					boolean inValid = false;
-					for(Point range : ranges) {
-						if(range.x == -1 || range.y == -1) {
+					for (Point range : ranges) {
+						if (range.x == -1 || range.y == -1) {
 							inValid = true;
 							break;
 						}
 					}
-					if(inValid) {
+					if (inValid) {
 						continue;
 					}
-					
+
 					sb2.append("\"exceptionHandlingCallStart\":[");
 					String starts = "";
 					for (int i = 0; i < exceptionCalls.size(); i++) {
@@ -758,7 +755,7 @@ public class Preprocess {
 					}
 					sb2.append(starts.substring(0, starts.length() - 2));
 					sb2.append("], ");
-					
+
 					sb2.append("\"exceptionHandlingCallEnd\":[");
 					String ends = "";
 					for (int i = 0; i < exceptionCalls.size(); i++) {
@@ -786,13 +783,14 @@ public class Preprocess {
 				sb2.append("\"exceptionHandlingCallStart\": [], ");
 				sb2.append("\"exceptionHandlingCallEnd\": [], ");
 			}
-			
+
 			// dump the configuration API calls
 			sb2.append("\"configuration\":[");
 			if (!configs.isEmpty()) {
 				String s = "";
 				for (APICall call : configs) {
-					if(call.receiver != null && call.receiver.equals(theCall.receiver)) {
+					if (call.receiver != null
+							&& call.receiver.equals(theCall.receiver)) {
 						// augment with the provided receiver object name
 						s += "\"" + rcvName + "." + call.name + "\", ";
 					} else {
@@ -804,23 +802,24 @@ public class Preprocess {
 			}
 
 			sb2.append("], ");
-			
-			
+
 			if (!configs.isEmpty()) {
-				ArrayList<Point> ranges = getAPICallRangesBeforeFocal(theCallStart, configs, matcher.callRanges, offset);
-				
-				// check for unmatched API calls caused by source code inconsistency between Boa and GitHub
+				ArrayList<Point> ranges = getAPICallRangesBeforeFocal(
+						theCallStart, configs, matcher.callRanges, offset);
+
+				// check for unmatched API calls caused by source code
+				// inconsistency between Boa and GitHub
 				boolean inValid = false;
-				for(Point range : ranges) {
-					if(range.x == -1 || range.y == -1) {
+				for (Point range : ranges) {
+					if (range.x == -1 || range.y == -1) {
 						inValid = true;
 						break;
 					}
 				}
-				if(inValid) {
+				if (inValid) {
 					continue;
 				}
-				
+
 				sb2.append("\"configurationStart\":[");
 				String starts = "";
 				for (int i = 0; i < configs.size(); i++) {
@@ -828,7 +827,7 @@ public class Preprocess {
 				}
 				sb2.append(starts.substring(0, starts.length() - 2));
 				sb2.append("], ");
-				
+
 				sb2.append("\"configurationEnd\":[");
 				String ends = "";
 				for (int i = 0; i < configs.size(); i++) {
@@ -841,20 +840,26 @@ public class Preprocess {
 				sb2.append("\"configurationStart\":[], ");
 				sb2.append("\"configurationEnd\":[], ");
 			}
-			
+
 			// dump the guard condition block
-			if(matcher.guardBlock != null) {
+			if (matcher.guardBlock != null) {
 				String guard = matcher.guardBlock.guard;
 				// replace rcv and arg0 with supplemented names
 				// TODO: handle multiple arguments
 				guard = guard.replaceAll("rcv", rcvName);
 				guard = guard.replaceAll("arg0", argName);
-				sb2.append("\"guardCondition\": \"" + StringEscapeUtils.escapeJava(guard) + "\", ");
-				sb2.append("\"guardType\": \"" + matcher.guardBlock.type + "\", ");
-				sb2.append("\"guardExpressionStart\": " + (matcher.guardBlock.startIndex1 - offset) + ", ");
-				sb2.append("\"guardExpressionEnd\": " + (matcher.guardBlock.endIndex1 - offset) + ", ");
-				sb2.append("\"guardBlockStart\": " + (matcher.guardBlock.startIndex2 - offset) + ", ");
-				sb2.append("\"guardBlockEnd\": " + (matcher.guardBlock.endIndex2 - offset) + ", ");
+				sb2.append("\"guardCondition\": \""
+						+ StringEscapeUtils.escapeJava(guard) + "\", ");
+				sb2.append("\"guardType\": \"" + matcher.guardBlock.type
+						+ "\", ");
+				sb2.append("\"guardExpressionStart\": "
+						+ (matcher.guardBlock.startIndex1 - offset) + ", ");
+				sb2.append("\"guardExpressionEnd\": "
+						+ (matcher.guardBlock.endIndex1 - offset) + ", ");
+				sb2.append("\"guardBlockStart\": "
+						+ (matcher.guardBlock.startIndex2 - offset) + ", ");
+				sb2.append("\"guardBlockEnd\": "
+						+ (matcher.guardBlock.endIndex2 - offset) + ", ");
 			} else {
 				sb2.append("\"guardCondition\": \"empty\", ");
 				sb2.append("\"guardType\": \"empty\", ");
@@ -863,27 +868,34 @@ public class Preprocess {
 				sb2.append("\"guardBlockStart\": -1, ");
 				sb2.append("\"guardBlockEnd\": -1, ");
 			}
-			
+
 			// dump the focal API call
 			// TODO: handle multiple arguments
-			sb2.append("\"focalAPI\": \"" + retName + " = " + rcvName + "." + focal + "(" + argName + ")\", ");
+			sb2.append("\"focalAPI\": \"" + retName + " = " + rcvName + "."
+					+ focal + "(" + argName + ")\", ");
 			sb2.append("\"focalAPIStart\": " + (theCallStart - offset) + ", ");
 			sb2.append("\"focalAPIEnd\": " + (theCallEnd - offset) + ", ");
-			
+
 			// dump the follow-up check on the return value of the focal API
-			if(matcher.followUpCheck != null) {
+			if (matcher.followUpCheck != null) {
 				String check = matcher.followUpCheck.guard;
 				// TODO : handle multiple arguments
 				check = check.replaceAll("rcv", rcvName);
 				check = check.replaceAll("arg0", argName);
 				check = check.replaceAll("ret", retName);
-				
-				sb2.append("\"followUpCheck\": \"" + StringEscapeUtils.escapeJava(check) + "\", ");
-				sb2.append("\"checkType\": \"" + matcher.followUpCheck.type + "\", ");
-				sb2.append("\"followUpCheckExpressionStart\": " + (matcher.followUpCheck.startIndex1 - offset) + ", ");
-				sb2.append("\"followUpCheckExpressionEnd\": " + (matcher.followUpCheck.endIndex1 - offset)+ ", ");
-				sb2.append("\"followUpCheckBlockStart\": " + (matcher.followUpCheck.startIndex2 - offset) + ", ");
-				sb2.append("\"followUpCheckBlockEnd\": " + (matcher.followUpCheck.endIndex2 - offset) + ", ");
+
+				sb2.append("\"followUpCheck\": \""
+						+ StringEscapeUtils.escapeJava(check) + "\", ");
+				sb2.append("\"checkType\": \"" + matcher.followUpCheck.type
+						+ "\", ");
+				sb2.append("\"followUpCheckExpressionStart\": "
+						+ (matcher.followUpCheck.startIndex1 - offset) + ", ");
+				sb2.append("\"followUpCheckExpressionEnd\": "
+						+ (matcher.followUpCheck.endIndex1 - offset) + ", ");
+				sb2.append("\"followUpCheckBlockStart\": "
+						+ (matcher.followUpCheck.startIndex2 - offset) + ", ");
+				sb2.append("\"followUpCheckBlockEnd\": "
+						+ (matcher.followUpCheck.endIndex2 - offset) + ", ");
 			} else {
 				sb2.append("\"followUpCheck\": \"empty\", ");
 				sb2.append("\"checkType\": \"empty\", ");
@@ -892,67 +904,83 @@ public class Preprocess {
 				sb2.append("\"followUpCheckBlockStart\": -1, ");
 				sb2.append("\"followUpCheckBlockEnd\": -1, ");
 			}
-			
-			// dump the API calls that use the return value or the receiver object of the focal API call
+
+			// dump the API calls that use the return value or the receiver
+			// object of the focal API call
 			sb2.append("\"use\":[");
 			if (!uses.isEmpty()) {
 				String s = "";
 				for (APICall call : uses) {
-					if(call.receiver != null && call.receiver.equals(theCall.receiver)) {
-						// this call is invoked on the same receiver as the focal API call
-						s += "\"" + rcvName + "." + call.name + "\", "; 
-					} else if (call.arguments.contains(theCall.ret)){
-						// this call uses the return value of the focal API call as one of its arguments
+					if (call.receiver != null
+							&& call.receiver.equals(theCall.receiver)) {
+						// this call is invoked on the same receiver as the
+						// focal API call
+						s += "\"" + rcvName + "." + call.name + "\", ";
+					} else if (call.arguments.contains(theCall.ret)) {
+						// this call uses the return value of the focal API call
+						// as one of its arguments
 						int index = call.arguments.indexOf(theCall.ret);
-						String args = call.name.substring(call.name.indexOf('(')+1, call.name.indexOf(')'));
+						String args = call.name.substring(
+								call.name.indexOf('(') + 1,
+								call.name.indexOf(')'));
 						String[] argss = args.split(",");
 						argss[index] = retName;
-						String normalizedUseCall = call.name.substring(0, call.name.indexOf('(')) + "(";
-						for(String arg : argss) {
+						String normalizedUseCall = call.name.substring(0,
+								call.name.indexOf('(')) + "(";
+						for (String arg : argss) {
 							normalizedUseCall += arg + ",";
 						}
-						normalizedUseCall = normalizedUseCall.substring(0, normalizedUseCall.length() - 1) + ")";
-							
-						s += "\"" + normalizedUseCall + "\", ";  
-					} else if (call.receiver != null && call.receiver.equals(theCall.ret)){
-						// this call is invoked on the return value of the focal API call 
+						normalizedUseCall = normalizedUseCall.substring(0,
+								normalizedUseCall.length() - 1) + ")";
+
+						s += "\"" + normalizedUseCall + "\", ";
+					} else if (call.receiver != null
+							&& call.receiver.equals(theCall.ret)) {
+						// this call is invoked on the return value of the focal
+						// API call
 						s += "\"" + retName + "." + call.name + "\", ";
 					} else {
-						// this call uses the receiver object of the focal API call as one of its arguments
+						// this call uses the receiver object of the focal API
+						// call as one of its arguments
 						int index = call.arguments.indexOf(theCall.receiver);
-						String args = call.name.substring(call.name.indexOf('(')+1, call.name.indexOf(')'));
+						String args = call.name.substring(
+								call.name.indexOf('(') + 1,
+								call.name.indexOf(')'));
 						String[] argss = args.split(",");
 						argss[index] = rcvName;
-						String normalizedUseCall = call.name.substring(0, call.name.indexOf('(')) + "(";
-						for(String arg : argss) {
+						String normalizedUseCall = call.name.substring(0,
+								call.name.indexOf('(')) + "(";
+						for (String arg : argss) {
 							normalizedUseCall += arg + ",";
 						}
-						normalizedUseCall = normalizedUseCall.substring(0, normalizedUseCall.length() - 1) + ")";
-							
-						s += "\"" + normalizedUseCall + "\", ";  
+						normalizedUseCall = normalizedUseCall.substring(0,
+								normalizedUseCall.length() - 1) + ")";
+
+						s += "\"" + normalizedUseCall + "\", ";
 					}
 				}
 				sb2.append(s.substring(0, s.length() - 2));
 			}
 
 			sb2.append("], ");
-			
-			
+
 			if (!uses.isEmpty()) {
-				ArrayList<Point> ranges = getAPICallRangesAfterFocal(theCallEnd, uses, matcher.callRanges, offset);
-				
-				// check for unmatched API calls caused by source code inconsistency between Boa and GitHub
+				ArrayList<Point> ranges = getAPICallRangesAfterFocal(
+						theCallEnd, uses, matcher.callRanges, offset);
+
+				// check for unmatched API calls caused by source code
+				// inconsistency between Boa and GitHub
 				boolean inValid = false;
-				for(Point range : ranges) {
-					if(range.x == -1 || range.y == -1) {
+				for (Point range : ranges) {
+					if (range.x == -1 || range.y == -1) {
 						inValid = true;
 						break;
 					}
 				}
-				if(inValid) {
+				if (inValid) {
 					continue;
 				}
-				
+
 				sb2.append("\"useStart\":[");
 				String starts = "";
 				for (int i = 0; i < uses.size(); i++) {
@@ -960,7 +988,7 @@ public class Preprocess {
 				}
 				sb2.append(starts.substring(0, starts.length() - 2));
 				sb2.append("], ");
-				
+
 				sb2.append("\"useEnd\":[");
 				String ends = "";
 				for (int i = 0; i < uses.size(); i++) {
@@ -973,11 +1001,11 @@ public class Preprocess {
 				sb2.append("\"useStart\":[], ");
 				sb2.append("\"useEnd\":[], ");
 			}
-			
+
 			// dump the key-value pairs related to the finally block
-			if(finallyBlock != null) {
+			if (finallyBlock != null) {
 				sb2.append("\"hasFinally\": 1, ");
-				
+
 				sb2.append("\"cleanUpCall\": [");
 				if (!cleanUpCalls.isEmpty()) {
 					String s = "";
@@ -987,7 +1015,7 @@ public class Preprocess {
 					sb2.append(s.substring(0, s.length() - 2));
 				}
 				sb2.append("], ");
-				
+
 				int finallyExpressionStart = -1;
 				int finallyExpressionEnd = -1;
 				int finallyBlockStart = -1;
@@ -1012,27 +1040,32 @@ public class Preprocess {
 						finallyBlockEnd = range.getRight().y - offset;
 					}
 				}
-				
-				sb2.append("\"finallyExpressionStart\": " + finallyExpressionStart + ", ");
-				sb2.append("\"finallyExpressionEnd\": " + finallyExpressionEnd + ", ");
+
+				sb2.append("\"finallyExpressionStart\": "
+						+ finallyExpressionStart + ", ");
+				sb2.append("\"finallyExpressionEnd\": " + finallyExpressionEnd
+						+ ", ");
 				sb2.append("\"finallyBlockStart\": " + finallyBlockStart + ", ");
 				sb2.append("\"finallyBlockEnd\": " + finallyBlockEnd + ", ");
-				
+
 				if (!cleanUpCalls.isEmpty()) {
-					ArrayList<Point> ranges = getAPICallRangesAfterFocal(theCallEnd, cleanUpCalls, matcher.callRanges, offset);
-					
-					// check for unmatched API calls caused by source code inconsistency between Boa and GitHub
+					ArrayList<Point> ranges = getAPICallRangesAfterFocal(
+							theCallEnd, cleanUpCalls, matcher.callRanges,
+							offset);
+
+					// check for unmatched API calls caused by source code
+					// inconsistency between Boa and GitHub
 					boolean inValid = false;
-					for(Point range : ranges) {
-						if(range.x == -1 || range.y == -1) {
+					for (Point range : ranges) {
+						if (range.x == -1 || range.y == -1) {
 							inValid = true;
 							break;
 						}
 					}
-					if(inValid) {
+					if (inValid) {
 						continue;
 					}
-					
+
 					sb2.append("\"cleanUpCallStart\":[");
 					String starts = "";
 					for (int i = 0; i < cleanUpCalls.size(); i++) {
@@ -1040,7 +1073,7 @@ public class Preprocess {
 					}
 					sb2.append(starts.substring(0, starts.length() - 2));
 					sb2.append("], ");
-					
+
 					sb2.append("\"cleanUpCallEnd\":[");
 					String ends = "";
 					for (int i = 0; i < cleanUpCalls.size(); i++) {
@@ -1063,14 +1096,14 @@ public class Preprocess {
 				sb2.append("\"cleanUpCallStart\": [], ");
 				sb2.append("\"cleanUpCallEnd\": [], ");
 			}
-			
+
 			sb2.append("\"url\": \"" + url + "\", ");
 			sb2.append("\"rawCode\": \"" + StringEscapeUtils.escapeJava(method)
 					+ "\"}");
 
 			FileUtils.appendStringToFile(
 					sb2.toString() + "," + System.lineSeparator(), output);
-			
+
 			id++;
 		}
 
@@ -1079,7 +1112,8 @@ public class Preprocess {
 		System.out.println(numOfUnreachableUrls);
 	}
 
-	private ArrayList<Point> getAPICallRangesBeforeFocal(int focalIndex, ArrayList<APICall> calls,
+	private ArrayList<Point> getAPICallRangesBeforeFocal(int focalIndex,
+			ArrayList<APICall> calls,
 			HashMap<APICall, ArrayList<Point>> callRanges, int offset) {
 		int next = focalIndex;
 		ArrayList<Point> results = new ArrayList<Point>();
@@ -1096,7 +1130,8 @@ public class Preprocess {
 					}
 				}
 				if (range != null) {
-					results.add(0, new Point(range.x - offset, range.y - offset));
+					results.add(0,
+							new Point(range.x - offset, range.y - offset));
 					next = range.x;
 				} else {
 					results.add(0, new Point(-1, -1));
@@ -1107,8 +1142,9 @@ public class Preprocess {
 		}
 		return results;
 	}
-	
-	private ArrayList<Point> getAPICallRangesAfterFocal(int focalIndex, ArrayList<APICall> calls,
+
+	private ArrayList<Point> getAPICallRangesAfterFocal(int focalIndex,
+			ArrayList<APICall> calls,
 			HashMap<APICall, ArrayList<Point>> callRanges, int offset) {
 		int prev = focalIndex;
 		ArrayList<Point> results = new ArrayList<Point>();
@@ -1846,7 +1882,7 @@ public class Preprocess {
 		Preprocess.rcvType = "Activity";
 		Preprocess.retName = "view";
 		Preprocess.retType = "View";
-		
+
 		String focal = "findViewById";
 		String input = "/media/troy/Disk2/Boa/apis/Activity.findViewById";
 		Preprocess pp = new Preprocess(input, focal);

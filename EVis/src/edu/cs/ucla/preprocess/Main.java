@@ -20,4 +20,22 @@ public class Main {
 		String output = "/media/troy/Disk2/Boa/apis/Map.get/evis.txt";
 		pp.dumpToJsonNewSchema(output);
 	}
+	
+	@Test
+	public void activityFindViewById() {
+		Preprocess.argName = "id";
+		Preprocess.argType = "int";
+		Preprocess.rcvName = "activity";
+		Preprocess.rcvType = "Activity";
+		Preprocess.retName = "view";
+		Preprocess.retType = "View";
+		
+		String focal = "findViewById";
+		String input = "/media/troy/Disk2/Boa/apis/Activity.findViewById";
+		Preprocess pp = new Preprocess(input, focal);
+		pp.process();
+
+		String output = "/media/troy/Disk2/Boa/apis/Activity.findViewById/evis.txt";
+		pp.dumpToJsonNewSchema(output);
+	}
 }
