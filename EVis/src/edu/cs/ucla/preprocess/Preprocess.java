@@ -23,6 +23,7 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import edu.cs.ucla.model.APICall;
 import edu.cs.ucla.model.ControlConstruct;
 import edu.cs.ucla.model.Item;
+import edu.cs.ucla.model.MethodSignature;
 
 public class Preprocess {
 	// Config this first!
@@ -32,6 +33,7 @@ public class Preprocess {
 	String focal;
 	HashMap<String, HashMap<String, String>> types;
 	HashMap<String, ArrayList<Item>> seqs;
+	HashMap<String, HashSet<MethodSignature>> oracle;
 
 	// supplement the names and types of the receiver, argument(s), and return
 	// value of the focal API here
@@ -47,6 +49,7 @@ public class Preprocess {
 		this.focal = api;
 		this.types = new HashMap<String, HashMap<String, String>>();
 		this.seqs = new HashMap<String, ArrayList<Item>>();
+		this.oracle = new HashMap<String, HashSet<MethodSignature>>();
 	}
 
 	public void process() {
@@ -55,6 +58,9 @@ public class Preprocess {
 
 		// then process the method call sequences
 		constructMethodCallSequences();
+		
+		// construct the oracle of API signatures from the partially resolved api call sequences
+		constructAPIOracle();
 	}
 
 	private void constructSymbolTables() {
@@ -186,6 +192,58 @@ public class Preprocess {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
+		}
+	}
+	
+	public void constructAPIOracle() {
+		for (String key : this.seqs.keySet()) {
+			if (types.containsKey(key)) {
+				HashMap<String, String> symbol_table = types
+						.get(key);
+				ArrayList<Item> seq = this.seqs.get(key);
+				for(Item item : seq) {
+					if(item instanceof APICall) {
+						APICall call = (APICall)item;
+						String rcv = call.receiver;
+						if(!symbol_table.containsKey(rcv)) {
+							continue;
+						}
+						
+						String rcvType = symbol_table.get(rcv);
+						String name = call.name.substring(0, call.name.indexOf('('));
+	    				String sub = call.name.substring(call.name.indexOf('(') + 1, call.name.indexOf(')'));
+	    				if(!sub.contains("*")) {
+	    					HashSet<MethodSignature> set;
+	    					if(oracle.containsKey(name)) {
+	    						set = oracle.get(name);
+	    					} else {
+	    						set = new HashSet<MethodSignature>();
+	    					}
+	    					
+	    					ArrayList<String> argType = new ArrayList<String>();
+	    					if(!sub.isEmpty()) {
+	    						String[] args = sub.split(",");
+	    						for(String arg : args) {
+	    							argType.add(arg);
+	    						}
+	    					}
+	    					
+	    					MethodSignature ms = new MethodSignature(name, rcvType, argType);
+	    					if(set.contains(ms)) {
+	    						for(MethodSignature sign : set) {
+	    							if(sign.equals(ms)) {
+	    								sign.count ++;
+	    							}
+	    						}
+	    					} else {
+	    						set.add(ms);
+	    					}
+	    					
+	    					oracle.put(name, set);
+	    				}
+					}
+				}
+			}
 		}
 	}
 
@@ -593,14 +651,15 @@ public class Preprocess {
 			if (!inits.isEmpty()) {
 				String s = "";
 				for (APICall call : inits) {
+					String signature = getSignature(key, call);
 					// synthesize the initialization statement with the provided
 					// names and types
 					// of receiver and arguments for better readability
 					if (call.ret.equals(theCall.receiver)) {
-						s += "\"" + rcvType + " " + rcvName + " = " + call.name
+						s += "\"" + rcvType + " " + rcvName + " = " + signature
 								+ "\", ";
 					} else {
-						s += "\"" + argType + " " + argName + " = " + call.name
+						s += "\"" + argType + " " + argName + " = " + signature
 								+ "\", ";
 					}
 				}
@@ -711,7 +770,8 @@ public class Preprocess {
 				if (!exceptionCalls.isEmpty()) {
 					String s = "";
 					for (APICall call : exceptionCalls) {
-						s += "\"" + call.name + "\", ";
+						String signature = getSignature(key, call);
+						s += "\"" + signature + "\", ";
 					}
 					sb2.append(s.substring(0, s.length() - 2));
 				}
@@ -789,13 +849,15 @@ public class Preprocess {
 			if (!configs.isEmpty()) {
 				String s = "";
 				for (APICall call : configs) {
+					String signature = getSignature(key, call);
+					signature = signature.substring(signature.indexOf('.') + 1);
 					if (call.receiver != null
 							&& call.receiver.equals(theCall.receiver)) {
 						// augment with the provided receiver object name
-						s += "\"" + rcvName + "." + call.name + "\", ";
+						s += "\"" + rcvName + "." + signature + "\", ";
 					} else {
 						// augment with the provided argument name
-						s += "\"" + argName + "." + call.name + "\", ";
+						s += "\"" + argName + "." + signature + "\", ";
 					}
 				}
 				sb2.append(s.substring(0, s.length() - 2));
@@ -911,22 +973,24 @@ public class Preprocess {
 			if (!uses.isEmpty()) {
 				String s = "";
 				for (APICall call : uses) {
+					String signature = getSignature(key, call);
 					if (call.receiver != null
 							&& call.receiver.equals(theCall.receiver)) {
 						// this call is invoked on the same receiver as the
 						// focal API call
-						s += "\"" + rcvName + "." + call.name + "\", ";
+						signature = signature.substring(signature.indexOf('.') + 1);
+						s += "\"" + rcvName + "." + signature + "\", ";
 					} else if (call.arguments.contains(theCall.ret)) {
 						// this call uses the return value of the focal API call
 						// as one of its arguments
 						int index = call.arguments.indexOf(theCall.ret);
-						String args = call.name.substring(
-								call.name.indexOf('(') + 1,
-								call.name.indexOf(')'));
+						String args = signature.substring(
+								signature.indexOf('(') + 1,
+								signature.indexOf(')'));
 						String[] argss = args.split(",");
 						argss[index] = retName;
-						String normalizedUseCall = call.name.substring(0,
-								call.name.indexOf('(')) + "(";
+						String normalizedUseCall = signature.substring(0,
+								signature.indexOf('(')) + "(";
 						for (String arg : argss) {
 							normalizedUseCall += arg + ",";
 						}
@@ -938,18 +1002,19 @@ public class Preprocess {
 							&& call.receiver.equals(theCall.ret)) {
 						// this call is invoked on the return value of the focal
 						// API call
-						s += "\"" + retName + "." + call.name + "\", ";
+						signature = signature.substring(signature.indexOf('.') + 1);
+						s += "\"" + retName + "." + signature + "\", ";
 					} else {
 						// this call uses the receiver object of the focal API
 						// call as one of its arguments
 						int index = call.arguments.indexOf(theCall.receiver);
-						String args = call.name.substring(
-								call.name.indexOf('(') + 1,
-								call.name.indexOf(')'));
+						String args = signature.substring(
+								signature.indexOf('(') + 1,
+								signature.indexOf(')'));
 						String[] argss = args.split(",");
 						argss[index] = rcvName;
-						String normalizedUseCall = call.name.substring(0,
-								call.name.indexOf('(')) + "(";
+						String normalizedUseCall = signature.substring(0,
+								signature.indexOf('(')) + "(";
 						for (String arg : argss) {
 							normalizedUseCall += arg + ",";
 						}
@@ -1010,7 +1075,8 @@ public class Preprocess {
 				if (!cleanUpCalls.isEmpty()) {
 					String s = "";
 					for (APICall call : cleanUpCalls) {
-						s += "\"" + call.name + "\", ";
+						String signature = getSignature(key, call);
+						s += "\"" + signature + "\", ";
 					}
 					sb2.append(s.substring(0, s.length() - 2));
 				}
@@ -1110,6 +1176,77 @@ public class Preprocess {
 		FileUtils.appendStringToFile("]", output);
 		// log the number of unreachable urls
 		System.out.println(numOfUnreachableUrls);
+	}
+
+	private String getSignature(String key, APICall call) {
+		if(!types.containsKey(key)) {
+			return call.name;
+		}
+		
+		HashMap<String, String> symbol_table = types.get(key);
+		String name = call.name.substring(0, call.name.indexOf('('));
+		String args = call.name.substring(call.name.indexOf('(') + 1, call.name.indexOf(')'));
+		if(call.receiver == null) {
+			if (!args.contains("*")) {
+				return call.name;
+			}
+		} else {
+			String rcvType = symbol_table.get(call.receiver);
+			if(rcvType != null && !args.contains("*")) {
+				// all types are resolved
+				return rcvType + "." + name + "(" + args + ")";
+			}
+		}
+		
+		if(oracle.containsKey(name)) {
+			HashSet<MethodSignature> set = oracle.get(name);
+			MethodSignature match  = null;
+			for(MethodSignature ms : set) {
+				if(ms.name.equals(name)) {
+					ArrayList<String> arr = new ArrayList<String>();
+					String[] ss = args.split(",");
+					for(String arg : ss) {
+						arr.add(arg);
+					}
+					
+					if(rcvType != null && !rcvType.equals(ms.rcvType)) {
+						// not from the same class
+						continue;
+					}
+					
+					ArrayList<String> args1 = ms.argType;
+					if(arr.size() == args1.size()) {
+						boolean isMatch = true;
+						for(int i = 0; i < arr.size(); i++) {
+							String arg1 = arr.get(i);
+							String arg2 = args1.get(i);
+							if(!arg1.equals("*") && !arg1.equals(arg2)) {
+								isMatch = false;
+								break;
+							}
+						}
+						
+						if(isMatch) {
+							if(match != null) {
+								if(ms.count > match.count) {
+									match = ms;
+								}
+							} else {
+								match = ms;
+							}
+						}
+					}
+				}
+			}
+			
+			if(match != null) {
+				return match.toString();
+			} else {
+				return call.name; 
+			}
+		} else {
+			return call.name;
+		}
 	}
 
 	private ArrayList<Point> getAPICallRangesBeforeFocal(int focalIndex,
