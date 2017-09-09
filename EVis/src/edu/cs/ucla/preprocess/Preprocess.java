@@ -37,8 +37,8 @@ public class Preprocess {
 
 	// supplement the names and types of the receiver, argument(s), and return
 	// value of the focal API here
-	static String argName;
-	static String argType;
+	static ArrayList<String> argNames;
+	static ArrayList<String> argTypes;
 	static String rcvName;
 	static String rcvType;
 	static String retName;
@@ -659,7 +659,9 @@ public class Preprocess {
 						s += "\"" + rcvType + " " + rcvName + " = " + signature
 								+ "\", ";
 					} else {
-						s += "\"" + argType + " " + argName + " = " + signature
+						// check which argument this is
+						int pos = theCall.arguments.indexOf(call.ret);
+						s += "\"" + argTypes.get(pos) + " " + argNames.get(pos) + " = " + signature
 								+ "\", ";
 					}
 				}
@@ -857,7 +859,8 @@ public class Preprocess {
 						s += "\"" + rcvName + "." + signature + "\", ";
 					} else {
 						// augment with the provided argument name
-						s += "\"" + argName + "." + signature + "\", ";
+						int pos = theCall.arguments.indexOf(call.receiver);
+						s += "\"" + argNames.get(pos) + "." + signature + "\", ";
 					}
 				}
 				sb2.append(s.substring(0, s.length() - 2));
@@ -907,9 +910,12 @@ public class Preprocess {
 			if (matcher.guardBlock != null) {
 				String guard = matcher.guardBlock.guard;
 				// replace rcv and arg0 with supplemented names
-				// TODO: handle multiple arguments
 				guard = guard.replaceAll("rcv", rcvName);
-				guard = guard.replaceAll("arg0", argName);
+				for(int i = 0; i < argNames.size(); i++) {
+					if(guard.contains("arg" + i)) {
+						guard = guard.replaceAll("arg" + i, argNames.get(i));
+					}
+				}
 				sb2.append("\"guardCondition\": \""
 						+ StringEscapeUtils.escapeJava(guard) + "\", ");
 				sb2.append("\"guardType\": \"" + matcher.guardBlock.type
@@ -932,18 +938,28 @@ public class Preprocess {
 			}
 
 			// dump the focal API call
-			// TODO: handle multiple arguments
 			sb2.append("\"focalAPI\": \"" + retName + " = " + rcvName + "."
-					+ focal + "(" + argName + ")\", ");
+					+ focal + "("); 
+			if(!argNames.isEmpty()) {
+				String s = "";
+				for(String argName : argNames) {
+					s += argName + ",";
+				}
+				sb2.append(s.substring(0, s.length() - 1));
+			}
+			sb2.append(")\", ");
 			sb2.append("\"focalAPIStart\": " + (theCallStart - offset) + ", ");
 			sb2.append("\"focalAPIEnd\": " + (theCallEnd - offset) + ", ");
 
 			// dump the follow-up check on the return value of the focal API
 			if (matcher.followUpCheck != null) {
 				String check = matcher.followUpCheck.guard;
-				// TODO : handle multiple arguments
 				check = check.replaceAll("rcv", rcvName);
-				check = check.replaceAll("arg0", argName);
+				for(int i = 0; i < argNames.size(); i++) {
+					if(check.contains("arg" + i)) {
+						check = check.replaceAll("arg" + i, argNames.get(i));
+					}
+				}
 				check = check.replaceAll("ret", retName);
 
 				sb2.append("\"followUpCheck\": \""
@@ -2013,12 +2029,29 @@ public class Preprocess {
 	}
 
 	public static void main(String[] args) {
-		Preprocess.argName = "id";
-		Preprocess.argType = "int";
-		Preprocess.rcvName = "activity";
-		Preprocess.rcvType = "Activity";
-		Preprocess.retName = "view";
-		Preprocess.retType = "View";
+		//query(String table, String[] columns, String selection, String[] selectionArgs, String groupBy, String having, String orderBy)
+		ArrayList<String> argNames = new ArrayList<String>();
+		argNames.add("table");
+		argNames.add("columns");
+		argNames.add("selection");
+		argNames.add("selectionArgs");
+		argNames.add("groupBy");
+		argNames.add("having");
+		argNames.add("orderBy");
+		Preprocess.argNames = argNames;
+		ArrayList<String> argTypes = new ArrayList<String>();
+		argTypes.add("String");
+		argTypes.add("String[]");
+		argTypes.add("String");
+		argTypes.add("String[]");
+		argTypes.add("String");
+		argTypes.add("String");
+		argTypes.add("String");
+		Preprocess.argTypes = argTypes;
+		Preprocess.rcvName = "database";
+		Preprocess.rcvType = "SQLiteDatabase";
+		Preprocess.retName = "cursor";
+		Preprocess.retType = "Cursor";
 
 		String focal = "findViewById";
 		String input = "/media/troy/Disk2/Boa/apis/Activity.findViewById";

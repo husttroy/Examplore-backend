@@ -1,13 +1,19 @@
 package edu.cs.ucla.preprocess;
 
+import java.util.ArrayList;
+
 import org.junit.Test;
 
 public class Main {
 	@Test
 	public void mapGet() {
 		// supplement names
-		Preprocess.argName = "key";
-		Preprocess.argType = "Object";
+		ArrayList<String> argNames = new ArrayList<String>();
+		argNames.add("key");
+		Preprocess.argNames = argNames;
+		ArrayList<String> argTypes = new ArrayList<String>();
+		argTypes.add("Object");
+		Preprocess.argTypes = argTypes;
 		Preprocess.rcvName = "map";
 		Preprocess.rcvType = "Map";
 		Preprocess.retName = "value";
@@ -23,8 +29,12 @@ public class Main {
 	
 	@Test
 	public void activityFindViewById() {
-		Preprocess.argName = "id";
-		Preprocess.argType = "int";
+		ArrayList<String> argNames = new ArrayList<String>();
+		argNames.add("id");
+		Preprocess.argNames = argNames;
+		ArrayList<String> argTypes = new ArrayList<String>();
+		argTypes.add("int");
+		Preprocess.argTypes = argTypes;
 		Preprocess.rcvName = "activity";
 		Preprocess.rcvType = "Activity";
 		Preprocess.retName = "view";
