@@ -8,12 +8,16 @@ public class Main {
 	@Test
 	public void mapGet() {
 		// supplement names
-		ArrayList<String> argNames = new ArrayList<String>();
-		argNames.add("key");
-		Preprocess.argNames = argNames;
-		ArrayList<String> argTypes = new ArrayList<String>();
-		argTypes.add("Object");
-		Preprocess.argTypes = argTypes;
+		ArrayList<ArrayList<String>> argNameList = new ArrayList<ArrayList<String>>(); 
+		ArrayList<String> argNames1 = new ArrayList<String>();
+		argNames1.add("key");
+		argNameList.add(argNames1);
+		Preprocess.argNameList = argNameList;
+		ArrayList<ArrayList<String>> argTypeList = new ArrayList<ArrayList<String>>();
+		ArrayList<String> argTypes1 = new ArrayList<String>();
+		argTypes1.add("Object");
+		argTypeList.add(argTypes1);
+		Preprocess.argTypeList = argTypeList;
 		Preprocess.rcvName = "map";
 		Preprocess.rcvType = "Map";
 		Preprocess.retName = "value";
@@ -29,12 +33,16 @@ public class Main {
 	
 	@Test
 	public void activityFindViewById() {
-		ArrayList<String> argNames = new ArrayList<String>();
-		argNames.add("id");
-		Preprocess.argNames = argNames;
-		ArrayList<String> argTypes = new ArrayList<String>();
-		argTypes.add("int");
-		Preprocess.argTypes = argTypes;
+		ArrayList<ArrayList<String>> argNameList = new ArrayList<ArrayList<String>>(); 
+		ArrayList<String> argNames1 = new ArrayList<String>();
+		argNames1.add("id");
+		argNameList.add(argNames1);
+		Preprocess.argNameList = argNameList;
+		ArrayList<ArrayList<String>> argTypeList = new ArrayList<ArrayList<String>>();
+		ArrayList<String> argTypes1 = new ArrayList<String>();
+		argTypes1.add("int");
+		argTypeList.add(argTypes1);
+		Preprocess.argTypeList = argTypeList;
 		Preprocess.rcvName = "activity";
 		Preprocess.rcvType = "Activity";
 		Preprocess.retName = "view";
