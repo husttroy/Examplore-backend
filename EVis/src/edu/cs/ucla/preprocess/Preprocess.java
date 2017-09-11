@@ -416,14 +416,56 @@ public class Preprocess {
 			ArrayList<APICall> configs = new ArrayList<APICall>();
 			ArrayList<APICall> uses = new ArrayList<APICall>();
 			int indexOfFocal = -1;
+			ArrayList<String> argNames = null;
+			ArrayList<String> argTypes = null;
 			for (int i = 0; i < seq.size(); i++) {
 				Item item = seq.get(i);
 				if (item instanceof APICall) {
 					String signature = ((APICall) item).name;
 					if (signature.contains(focal + "(")) {
-						// okay this is the focal API call
-						theCall = (APICall) item;
-						indexOfFocal = i;
+						// this is likely to be the focal API call
+						if(signature.contains("*")) {
+							signature = getSignature(key, ((APICall) item));
+						}
+						 
+						// check for overloading methods for the focal API
+						for(int j = 0; j < argTypeList.size(); j++) {
+							ArrayList<String> l1 = argTypeList.get(j);
+							if(l1.size() == ((APICall) item).arguments.size()) {
+								boolean isMatch = true;
+
+								String sub = signature.substring(signature.indexOf('(') + 1, signature.indexOf(')'));
+								if (!sub.isEmpty()) {
+									String[] subs = sub.split(",");
+									for(int k = 0; k < l1.size(); k ++) {
+										String arg1 = l1.get(k);
+										String arg2 = subs[k];
+										if(arg1.equals("*") || arg1.equals(arg2)) {
+											continue;
+										} else {
+											isMatch = false;
+											break;
+										}
+									}
+								}
+								
+								if(isMatch) {
+									// match
+									argNames = argNameList.get(j);
+									argTypes = argTypeList.get(j);
+									break;
+								}
+							}
+						}
+						
+						if(argNames == null) {
+							// this is not the focal API call
+							continue;
+						} else {
+							// find a match in the supplemented signatures
+							theCall = (APICall) item;
+							indexOfFocal = i;
+						}
 
 						// scanning backward to find the first preceding call
 						for (int j = i - 1; j >= 0; j--) {
@@ -642,19 +684,6 @@ public class Preprocess {
 				// TODO: cannot match the focal API, discard this example
 				continue;
 			}
-			
-			// check for overloading methods for the focal API
-			ArrayList<String> argNames = null;
-			ArrayList<String> argTypes = null;
-			for(int i = 0; i < argNameList.size(); i++) {
-				ArrayList<String> l1 = argNameList.get(i);
-				if(l1.size() == theCall.arguments.size()) {
-					// match
-					argNames = l1;
-					argTypes = argTypeList.get(i);
-					break;
-				}
-			}
 
 			StringBuilder sb2 = new StringBuilder();
 			sb2.append("{\"exampleID\": " + id + ", ");
@@ -669,8 +698,13 @@ public class Preprocess {
 					// names and types
 					// of receiver and arguments for better readability
 					if (call.ret.equals(theCall.receiver)) {
-						s += "\"" + rcvType + " " + rcvName + " = " + signature
-								+ "\", ";
+						if(rcvName != null && rcvType != null) {
+							s += "\"" + rcvType + " " + rcvName + " = " + signature
+									+ "\", ";
+						} else {
+							// the focal API is a constructor call, should not have receiver objects
+							s += "\"" + signature + "\", ";
+						}
 					} else {
 						// check which argument this is
 						int pos = theCall.arguments.indexOf(call.ret);
@@ -923,7 +957,9 @@ public class Preprocess {
 			if (matcher.guardBlock != null) {
 				String guard = matcher.guardBlock.guard;
 				// replace rcv and arg0 with supplemented names
-				guard = guard.replaceAll("rcv", rcvName);
+				if(rcvName != null) {
+					guard = guard.replaceAll("rcv", rcvName);
+				}
 				for(int i = 0; i < argNames.size(); i++) {
 					if(guard.contains("arg" + i)) {
 						guard = guard.replaceAll("arg" + i, argNames.get(i));
@@ -951,8 +987,13 @@ public class Preprocess {
 			}
 
 			// dump the focal API call
-			sb2.append("\"focalAPI\": \"" + retName + " = " + rcvName + "."
-					+ focal + "("); 
+			if(rcvName != null) {
+				sb2.append("\"focalAPI\": \"" + retName + " = " + rcvName + "."
+						+ focal + "(");
+			} else {
+				sb2.append("\"focalAPI\": \"" + retName + " = " + focal + "(");
+			}
+			 
 			if(!argNames.isEmpty()) {
 				String s = "";
 				for(String argName : argNames) {
@@ -967,7 +1008,9 @@ public class Preprocess {
 			// dump the follow-up check on the return value of the focal API
 			if (matcher.followUpCheck != null) {
 				String check = matcher.followUpCheck.guard;
-				check = check.replaceAll("rcv", rcvName);
+				if(rcvName != null) {
+					check = check.replaceAll("rcv", rcvName);
+				}
 				for(int i = 0; i < argNames.size(); i++) {
 					if(check.contains("arg" + i)) {
 						check = check.replaceAll("arg" + i, argNames.get(i));
@@ -2045,103 +2088,37 @@ public class Preprocess {
 		//query(String table, String[] columns, String selection, String[] selectionArgs, String groupBy, String having, String orderBy)
 		ArrayList<ArrayList<String>> argNameList = new ArrayList<ArrayList<String>>();
 		ArrayList<String> argNames1 = new ArrayList<String>();
-		argNames1.add("table");
-		argNames1.add("columns");
-		argNames1.add("selection");
-		argNames1.add("selectionArgs");
-		argNames1.add("groupBy");
-		argNames1.add("having");
-		argNames1.add("orderBy");
+		argNames1.add("file");
 		ArrayList<String> argNames2 = new ArrayList<String>();
-		argNames2.add("table");
-		argNames2.add("columns");
-		argNames2.add("selection");
-		argNames2.add("selectionArgs");
-		argNames2.add("groupBy");
-		argNames2.add("having");
-		argNames2.add("orderBy");
-		argNames2.add("limit");
+		argNames2.add("fileDescripter");
 		ArrayList<String> argNames3 = new ArrayList<String>();
-		argNames3.add("distinct");
-		argNames3.add("table");
-		argNames3.add("columns");
-		argNames3.add("selection");
-		argNames3.add("selectionArgs");
-		argNames3.add("groupBy");
-		argNames3.add("having");
-		argNames3.add("orderBy");
-		argNames3.add("limit");
-		ArrayList<String> argNames4 = new ArrayList<String>();
-		argNames4.add("distinct");
-		argNames4.add("table");
-		argNames4.add("columns");
-		argNames4.add("selection");
-		argNames4.add("selectionArgs");
-		argNames4.add("groupBy");
-		argNames4.add("having");
-		argNames4.add("orderBy");
-		argNames4.add("limit");
-		argNames4.add("cancellationSignal");
+		argNames3.add("fileName");
 		argNameList.add(argNames1);
 		argNameList.add(argNames2);
 		argNameList.add(argNames3);
-		argNameList.add(argNames4);
 		Preprocess.argNameList = argNameList;
 		ArrayList<ArrayList<String>> argTypeList = new ArrayList<ArrayList<String>>();
 		ArrayList<String> argTypes1 = new ArrayList<String>();
-		argTypes1.add("String");
-		argTypes1.add("String[]");
-		argTypes1.add("String");
-		argTypes1.add("String[]");
-		argTypes1.add("String");
-		argTypes1.add("String");
-		argTypes1.add("String");
+		argTypes1.add("File");
 		ArrayList<String> argTypes2 = new ArrayList<String>();
-		argTypes2.add("String");
-		argTypes2.add("String[]");
-		argTypes2.add("String");
-		argTypes2.add("String[]");
-		argTypes2.add("String");
-		argTypes2.add("String");
-		argTypes2.add("String");
-		argTypes2.add("String");
+		argTypes2.add("FileDescriptor");
 		ArrayList<String> argTypes3 = new ArrayList<String>();
-		argTypes3.add("boolean");
 		argTypes3.add("String");
-		argTypes3.add("String[]");
-		argTypes3.add("String");
-		argTypes3.add("String[]");
-		argTypes3.add("String");
-		argTypes3.add("String");
-		argTypes3.add("String");
-		argTypes3.add("String");
-		ArrayList<String> argTypes4 = new ArrayList<String>();
-		argTypes4.add("boolean");
-		argTypes4.add("String");
-		argTypes4.add("String[]");
-		argTypes4.add("String");
-		argTypes4.add("String[]");
-		argTypes4.add("String");
-		argTypes4.add("String");
-		argTypes4.add("String");
-		argTypes4.add("String");
-		argTypes4.add("CancellationSignal");
 		argTypeList.add(argTypes1);
 		argTypeList.add(argTypes2);
 		argTypeList.add(argTypes3);
-		argTypeList.add(argTypes4);
 		Preprocess.argTypeList = argTypeList;
-		Preprocess.rcvName = "database";
-		Preprocess.rcvType = "SQLiteDatabase";
-		Preprocess.retName = "cursor";
-		Preprocess.retType = "Cursor";
+		Preprocess.rcvName = null;
+		Preprocess.rcvType = null;
+		Preprocess.retName = "stream";
+		Preprocess.retType = "FileInputStream";
 
-		String focal = "query";
-		String input = "/media/troy/Disk2/Boa/apis/SQLiteDatabase.query";
+		String focal = "new FileInputStream";
+		String input = "/media/troy/Disk2/Boa/apis/FileInputStream.FileInputStream";
 		Preprocess pp = new Preprocess(input, focal);
 		pp.process();
 
-		String output = "/media/troy/Disk2/Boa/apis/SQLiteDatabase.query/evis.txt";
+		String output = "/media/troy/Disk2/Boa/apis/FileInputStream.FileInputStream/evis.txt";
 		pp.dumpToJsonNewSchema(output);
 	}
 }
