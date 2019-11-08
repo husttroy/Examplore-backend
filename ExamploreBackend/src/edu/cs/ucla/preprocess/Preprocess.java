@@ -27,7 +27,7 @@ import edu.cs.ucla.model.MethodSignature;
 
 public class Preprocess {
 	// Config this first!
-	boolean isFirstRun = false;
+	boolean isFirstRun = true;
 
 	String path;
 	String focal;
@@ -440,7 +440,7 @@ public class Preprocess {
 									for(int k = 0; k < l1.size(); k ++) {
 										String arg1 = l1.get(k);
 										String arg2 = subs[k];
-										if(arg1.equals("*") || arg1.equals(arg2)) {
+										if(arg1.equals("*") || arg2.equals("*") || arg1.equals(arg2)) {
 											continue;
 										} else {
 											isMatch = false;
